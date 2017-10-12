@@ -102,19 +102,13 @@ def obterTermo(pesquisar,posicao):
              resultado = linha
     return resultado
 
-# Main
 # abrindo o arquivo que contém a árvore sintática da frase
 # o arquivo for gerado através do link http://visl.sdu.dk/visl/pt/parsing/automatic/trees.php
+arq = open('/Users/jguedes/Downloads/exported.html', 'r')
+texto = arq.readlines()
 
 # imprimindo cabeçalhos
 cabecalho()
-try:
-    with open('/Users/jguedes/Downloads/exported.html', 'r') as arq:
-       texto = arq.readlines()
-except IOError:
-    print ("<p style='margin-left: 80'><strong>Não encontrei o arquivo exported.html</strong></p>")
-    print (" 				<p style='margin-left: 80' align=""justify"">Antes de executar o algoritmo, é necessário gerar a árvore sintática da frase que se deseja resolver a anáfora pronominal. <br>Clique no item de menu Executando o Algoritmo.<p>")
-    sys.exit(0)
 
 # obter a frase
 frase = obterTermo("SOURCE: Running text",1)
@@ -168,8 +162,7 @@ arq.close()
 
 #renomear arquivo
 #/Users/jguedes/Downloads/exported.html
-os.remove('/Users/jguedes/Downloads/_exported.html')
-os.rename('/Users/jguedes/Downloads/exported.html', '/Users/jguedes/Downloads/_exported.html')
+os.rename(/Users/jguedes/Downloads/exported.html, /Users/jguedes/Downloads/exported.html)
 
 
 
