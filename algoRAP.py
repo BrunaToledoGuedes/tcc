@@ -1,4 +1,4 @@
-#!C:\Program Files (x86)\EasyPHP-Devserver-17\eds-binaries\python\default\python.exe
+#!C:\Program Files\EasyPHP-Devserver-17\eds-binaries\python\default\python.exe
 # -*- coding: utf-8 -*-
 import sys
 import string
@@ -84,7 +84,8 @@ def rodape():
 class ArvoreSintatica:
     def __init__(self):
         try:
-            with open('/Users/bruna/Downloads/exported.html', 'r') as self.arq:
+#            with open('/Users/bruna/Downloads/exported.html', 'r') as self.arq:
+            with open('/Users/jguedes/Downloads/exported.html', 'r') as self.arq:
                self.texto = self.arq.readlines()
         except IOError:
             print ("<p style='margin-left: 80'><strong>Não encontrei o arquivo exported.html</strong></p>")
@@ -92,7 +93,7 @@ class ArvoreSintatica:
             rodape()
             sys.exit(0)
           
-    def obterFrase(self):
+    def obterFrase(self, fraseNumero):
         # objetivo: a função retornará a linha do arquivo exported.html 
         # que contém a frase do arquivo da árvore sintática.
         resultado = "N&atilde;o encontrado" 
@@ -101,7 +102,10 @@ class ArvoreSintatica:
             #print(linha+"<br>")
             #print(encontrou)
             if encontrou <> -1:
-               resultado = linha
+               #print linha.split(" ")[0]
+               #print str(fraseNumero)+"."
+               if linha.split(" ")[0] == str(fraseNumero)+"." :
+                  resultado = linha
             encontrou = string.find(linha,"SOURCE: Running text")
         return resultado
           
@@ -114,6 +118,7 @@ class ArvoreSintatica:
         resultado = "N&atilde;o encontrado" 
         encontrou = -1
         for linha in self.texto :
+           #print(tag+"<br>")
            #print(linha+"<br>")
            #print(encontrou)
            encontrou = string.find(linha,tag)
@@ -127,55 +132,67 @@ class ArvoreSintatica:
         #/Users/bruna/Downloads/exported.html
         #os.remove('/Users/bruna/Downloads/_exported.html')
         #os.rename('/Users/bruna/Downloads/exported.html', '/Users/bruna/Downloads/_exported.html')		
-          
-class Frase:
+
+class Corpora:
     def __init__(self):
         self.arvoreGerada = ArvoreSintatica()          
-        self.conteudo = self.arvoreGerada.obterFrase()   # pegando a frase da árvore sintática
-        #print "<br>"
-        #print "arvore gerada"
-        #print self.arvoreGerada
-        #print "<br>"
-        #print self.conteudo
-        #print "<br>"
-        self.ambiguidade = True   #criar logica para verificar se a frase tem ambiguidade
-        self.antecedente = ""   # soluçao
-        #self.sujeito = ""
-        #self.complementoVerbal = ""
-        #self.verboAuxiliar = ""
-        #self.verboParticipio = ""
-
+        self.numeroFrases()
+    # obter numero total de frases do texto
+    def numeroFrases(self):
+        # objetivo: a função retornará a quantidade de frases do arquivo exported.html 
+        self.quantidadeFrases = 0 
+        encontrou = -1
+        for linha in self.arvoreGerada.texto :
+            #print(linha+"<br>")
+            #print(encontrou)
+            if encontrou <> -1:
+               self.quantidadeFrases = self.quantidadeFrases + 1
+            encontrou = string.find(linha,"SOURCE: Running text")
+        return self.quantidadeFrases
+		
+class Frase:
+    def __init__(self, fraseNumero):
+        self.arvoreGerada = ArvoreSintatica()          
+        self.conteudo = self.arvoreGerada.obterFrase(fraseNumero)   # pegando a frase da árvore sintática
+        self.ambiguidade = True  # colocar formula aqui
+        #self.ambiguidade = True   #criar logica para verificar se a frase tem ambiguidade
+        #self.antecedente = ""   # soluçao
+        #print fraseNumero
+		
     # obter ambiguidade
     def obterAmbiguidade(self):
         # analisar    obterVerboAuxiliar = arvoreGerada.obterTermo("-VAUX:v*fin")
         #s = obterVerboAuxiliar.split("\t")
-        ambiguidade = True
-        return ambiguidade
+        self.ambiguidade = True
+        return self.ambiguidade
           
     # obter antecedente
     def obterAntecedente(self):
         # analisar    obterVerboAuxiliar = arvoreGerada.obterTermo("-VAUX:v*fin")
         #s = obterVerboAuxiliar.split("\t")
-        antecedente = ""
-        if (verboAuxiliar=="N&atilde;o encontrado" or verboParticipio == "N&atilde;o encontrado") :
-           antecedente = self.obterCompementoVerbal()
+        self.antecedente = " "
+        self.termoSelecionado = " "
+        if (self.verboAuxiliar=="N&atilde;o encontrado" or self.verboParticipio == "N&atilde;o encontrado") :
+           self.antecedente = self.obterComplementoVerbal()
+           self.termoSelecionado = "Complemento Verbal"
         else:
-           antecedente = self.obterSujeito()
-        return antecedente
+           self.antecedente = self.obterSujeito()
+           self.termoSelecionado = "Sujeito"
+        return self.antecedente
           
     # obter o verbo auxiliar
     def obterVerboAuxiliar(self):
         obterVerboAuxiliar = self.arvoreGerada.obterTermo("-VAUX:v*fin")
         s = obterVerboAuxiliar.split("\t")
-        verboAuxiliar=s[len(s)-1]
-        return verboAuxiliar
+        self.verboAuxiliar=s[len(s)-1]
+        return self.verboAuxiliar
           
     # obter o verbo no particípio
     def obterVerboParticipio(self):
         obterVerboParticipio = self.arvoreGerada.obterTermo("-MV:v*pcp")
         s = obterVerboParticipio.split("\t") 
-        verboParticipio=s[len(s)-1] 
-        return verboParticipio
+        self.verboParticipio=s[len(s)-1] 
+        return self.verboParticipio
         
     # obter o sujeito
     def obterSujeito(self):
@@ -186,7 +203,7 @@ class Frase:
           
     # obter o complemento verbal
     def obterComplementoVerbal(self):
-        linhaCompl = self.arvoreGerada.obterTermo("-ACC :prop")
+        linhaCompl = self.arvoreGerada.obterTermo("-ACC:prop")
         s = linhaCompl.split("\t")
         self.complementoVerbal=s[len(s)-1]
         return self.complementoVerbal
@@ -200,42 +217,45 @@ class Frase:
 
 # imprimindo cabeçalhos
 cabecalho()
+corpora = Corpora()
+for counter in range(1,corpora.quantidadeFrases+1):
+    #print counter
 
-sentencaAnalisada = Frase()
+    sentencaAnalisada = Frase(counter)
 
-# mostrar resultados em tela
-
-existeVerboAuxiliar = "N&atilde;o encontrado"
-if sentencaAnalisada.obterVerboAuxiliar() <> "N&atilde;o encontrado":
-   existeVerboAuxiliar = "Encontrado"
+    # mostrar resultados em tela
+    existeVerboAuxiliar = "N&atilde;o encontrado"
+    if sentencaAnalisada.obterVerboAuxiliar() <> "N&atilde;o encontrado":
+       existeVerboAuxiliar = "Encontrado"
    
-existeVerboParticipio = "N&atilde;o encontrado"
-if sentencaAnalisada.obterVerboParticipio() <> "N&atilde;o encontrado":
-   existeVerboParticipio = "Encontrado"
+    existeVerboParticipio = "N&atilde;o encontrado"
+    if sentencaAnalisada.obterVerboParticipio() <> "N&atilde;o encontrado":
+       existeVerboParticipio = "Encontrado"
+   
+    print ("<br><p style='margin-left: 80'><strong> Frase em An&aacute;lise: "+sentencaAnalisada.conteudo.capitalize()+"</strong></p>")
 
-print ("<br><p style='margin-left: 80'><strong> Frase em An&aacute;lise: "+sentencaAnalisada.conteudo+"</strong></p>")
+    if sentencaAnalisada.ambiguidade :
+       print ("<p style='margin-left: 80'>Verbo Auxiliar: "+str(existeVerboAuxiliar))   
+       if existeVerboAuxiliar=="Encontrado":
+          print (" => "+sentencaAnalisada.verboAuxiliar+"</p>")
 
-print ("<p style='margin-left: 80'>Verbo Auxiliar: "+str(existeVerboAuxiliar))
-if existeVerboAuxiliar=="Encontrado":
-   print (" => "+verboAuxiliar+"</p>")
+       print ("<p style='margin-left: 80'>Verbo no Partic&iacute;pio: "+str(existeVerboParticipio))
+       if existeVerboParticipio=="Encontrado":
+          print (" => "+sentencaAnalisada.verboParticipio+"</p>")
+   
+       sentencaAnalisada.obterSujeito()
+       #print ("<br> Linha onde o Sujeito foi localizado: "+linhaSujeito+" <br>")
+       print ("<p style='margin-left: 80'>Sujeito localizado: "+sentencaAnalisada.sujeito+"</p>")
 
-print ("<p style='margin-left: 80'>Verbo no Partic&iacute;pio: "+str(existeVerboParticipio))
-if existeVerboParticipio=="Encontrado":
-   print (" => "+verboParticipio+"</p>")
+       sentencaAnalisada.obterComplementoVerbal()
+       print ("<p style='margin-left: 80'>Complemento Verbal localizado: "+sentencaAnalisada.complementoVerbal+"</p>")
 
-#print ("<br> Linha onde o Sujeito foi localizado: "+linhaSujeito+" <br>")
-print ("<p style='margin-left: 80'>Sujeito localizado: "+str(sentencaAnalisada.obterSujeito)+"</p>")
-
-print ("<p style='margin-left: 80'>Complemento Verbal localizado: "+str(sentencaAnalisada.obterComplementoVerbal)+"</p>")
-
-print ("<p style='margin-left: 80'><strong> Nesta frase, o algoritmo selecionou como solu&ccedil;&atilde;o o antecedente => "+str(sentencaAnalisada.obterAntecedente)+" <br></strong></p>")
-        
-
+       sentencaAnalisada.obterAntecedente()
+       print ("<p style='margin-left: 80'><strong> Nesta frase, o algoritmo selecionou como solu&ccedil;&atilde;o para o antecedente o " +sentencaAnalisada.termoSelecionado+ " => "+sentencaAnalisada.antecedente+" <br></strong></p>")
+    else:
+       print "<br> Frase não possui ambiguidade anaforica pronominal <br>"
+	   
 rodape()
 print ("</body></html>")
 sentencaAnalisada.finalizarFrase()
-
-
-
-
 
