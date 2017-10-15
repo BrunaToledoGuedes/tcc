@@ -117,15 +117,51 @@ class ArvoreSintatica:
         #            tag no arquivo exported.html
         resultado = "N&atilde;o encontrado" 
         encontrou = -1
+        flag = 0  #o termo que preciso está na linha abaixo, podem ser duas linhas abaixo também
+        flag_n = 0 #flag para ignorar a parte da frase que não preciso
         for linha in self.texto :
            #print(tag+"<br>")
            #print(linha+"<br>")
-           #print(encontrou)
+           #print 'flag_n'
+           #print(flag_n)
+           #print 'a'
+           #print string.find(linha,'-N&amp;')
+           #print 'b'
            encontrou = string.find(linha,tag)
+           if flag_n == 100:
+              if linha[:1] <> ' ':
+                 flag_n = 0
+           #print 'a'
+           #print string.find(linha,'-N&amp;')
+           #print 'b'
+           if string.find(linha,'-N&amp;') <> -1:   # executar as linhas somente se não for dependente -N<
+              flag_n = 100
            if encontrou <> -1:
-              resultado = linha
+              if flag_n <> 100: 
+                    if tag=='-SUBJ' :
+                       if string.find(linha,':np') <> -1:
+                           flag = 100  #a linha que preciso está abaixo da linha com a tag
+                       else:
+                          if string.find(linha,':prop') <> -1:
+                             resultado = linha
+                    else:
+                       if tag=='-ACC' :
+                          if string.find(linha,':np') <> -1:
+                              flag = 100  #a linha que preciso está abaixo da linha com a tag
+                          else:
+                             if string.find(linha,':prop') <> -1:
+                                resultado = linha
+                       else:
+                          resultado = linha
+           if flag == 100:
+             #print(linha+"<br>")
+             if string.find(linha,'-N&lt') == -1:   # executar as linhas somente se não for dependente -N<
+                if string.find(linha,'-H:n') <> -1:
+                   resultado = linha
+                   flag=0 		   
+                   #print('achou com flag %%%%%%%%%%%%%%')
         return resultado
-	
+
     def fecharArquivo(self):
         self.arq.close()
         #renomear arquivo
@@ -136,9 +172,9 @@ class ArvoreSintatica:
 class Corpora:
     def __init__(self):
         self.arvoreGerada = ArvoreSintatica()          
-        self.numeroFrases()
+        self.calcularQtdeFrases()
     # obter numero total de frases do texto
-    def numeroFrases(self):
+    def calcularQtdeFrases(self):
         # objetivo: a função retornará a quantidade de frases do arquivo exported.html 
         self.quantidadeFrases = 0 
         encontrou = -1
@@ -185,8 +221,12 @@ class Frase:
         obterVerboAuxiliar = self.arvoreGerada.obterTermo("-VAUX:v*fin")
         s = obterVerboAuxiliar.split("\t")
         self.verboAuxiliar=s[len(s)-1]
+        if obterVerboAuxiliar == "N&atilde;o encontrado":
+           obterVerboAuxiliar = self.arvoreGerada.obterTermo("-P:v*fin")
+           s = obterVerboAuxiliar.split("\t")
+           self.verboAuxiliar=s[len(s)-1]
         return self.verboAuxiliar
-          
+        
     # obter o verbo no particípio
     def obterVerboParticipio(self):
         obterVerboParticipio = self.arvoreGerada.obterTermo("-MV:v*pcp")
@@ -196,14 +236,14 @@ class Frase:
         
     # obter o sujeito
     def obterSujeito(self):
-        linhaSujeito = self.arvoreGerada.obterTermo("-SUBJ:prop")
+        linhaSujeito = self.arvoreGerada.obterTermo("-SUBJ")
         s = linhaSujeito.split("\t")
         self.sujeito=s[len(s)-1]
         return self.sujeito
           
     # obter o complemento verbal
     def obterComplementoVerbal(self):
-        linhaCompl = self.arvoreGerada.obterTermo("-ACC:prop")
+        linhaCompl = self.arvoreGerada.obterTermo("-ACC")
         s = linhaCompl.split("\t")
         self.complementoVerbal=s[len(s)-1]
         return self.complementoVerbal
@@ -227,7 +267,7 @@ for counter in range(1,corpora.quantidadeFrases+1):
     existeVerboAuxiliar = "N&atilde;o encontrado"
     if sentencaAnalisada.obterVerboAuxiliar() <> "N&atilde;o encontrado":
        existeVerboAuxiliar = "Encontrado"
-   
+
     existeVerboParticipio = "N&atilde;o encontrado"
     if sentencaAnalisada.obterVerboParticipio() <> "N&atilde;o encontrado":
        existeVerboParticipio = "Encontrado"
