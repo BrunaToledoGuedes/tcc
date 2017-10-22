@@ -1,4 +1,4 @@
-#!C:\Program Files\EasyPHP-Devserver-17\eds-binaries\python\default\python.exe
+#!C:\Program Files (x86)\EasyPHP-Devserver-17\eds-binaries\python\default\python.exe
 # -*- coding: utf-8 -*-
 import sys
 import string
@@ -84,8 +84,8 @@ def rodape():
 class ArvoreSintatica:
     def __init__(self):
         try:
-#            with open('/Users/bruna/Downloads/exported.html', 'r') as self.arq:
-            with open('/Users/jguedes/Downloads/exported.html', 'r') as self.arq:
+            with open('/Users/bruna/Downloads/exported.html', 'r') as self.arq:
+#            with open('/Users/jguedes/Downloads/exported.html', 'r') as self.arq:
                self.texto = self.arq.readlines()
         except IOError:
             print ("<p style='margin-left: 80'><strong>Não encontrei o arquivo exported.html</strong></p>")
@@ -391,12 +391,13 @@ class Frase:
         obterQtdeComplODSubstantivo   = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ACC")   # ACC + H:n     - OBJETO DIRETO
         obterQtdeComplOD2Proprio      = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
         obterQtdeComplOD2Substantivo  = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PASS:pp")   # :pp + H:n     - OBJETO DIRETO
+        obterQtdeComplOD3Proprio      = self.arvoreGerada.obterQtdeTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")   # :pp + :prop       - OBJETO DIRETO
         #obterQtdeComplementoOP       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero # PIV +              - OBJETO PREPOSICIONADO
         obterQtdeComplOIProprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")   # PIV + :prop       - OBJETO INDIRETO
         obterQtdeComplOISubstantivo   = self.arvoreGerada.obterQtdeTermo(":H:n", fraseNumero, "PIV")   # PIV + :prop   - OBJETO INDIRETO
         obterQtdePronomePessoal       = self.arvoreGerada.obterQtdeTermo("pers", fraseNumero, "pron")
         obterQtdePronomeDemonstrativo = self.arvoreGerada.obterQtdeTermo("det", fraseNumero, "pron")
-        obterQtdeSujeito = obterQtdeSujeito2Proprio + obterQtdeSubstantivoPredicado + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo + obterQtdeAdjuntoProprio + obterQtdeAdjuntoSubstantivo
+        obterQtdeSujeito = obterQtdeComplOD3Proprio + obterQtdeSujeito2Proprio + obterQtdeSubstantivoPredicado + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo + obterQtdeAdjuntoProprio + obterQtdeAdjuntoSubstantivo
         obterQtdePronome = obterQtdePronomePessoal + obterQtdePronomeDemonstrativo
         print ("obterQtdeSujeito")
         print obterQtdeSujeito
@@ -459,6 +460,7 @@ class Frase:
                  linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
                  s = linhaSujeito.split("\t")
                  self.sujeito=s[len(s)-1]
+
         return self.sujeito
           
     # obter o complemento verbal
@@ -486,7 +488,11 @@ class Frase:
                        linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
                        s = linhaCompl.split("\t")
                        self.complementoVerbal=s[len(s)-1]
- 
+                       if linhaCompl == "N&atilde;o encontrado":
+                          linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+                          s = linhaCompl.split("\t")
+                          self.complementoVerbal=s[len(s)-1]
+
         return self.complementoVerbal
 
     def finalizarFrase(self):
@@ -499,7 +505,7 @@ class Frase:
 # imprimindo cabeçalhos
 cabecalho()
 corpora = Corpora()
-print ("<br><p style='margin-left: 80'><strong> Ambiguidades Encontradas no Texto<br><br></strong></p>")
+print ("<br><p style='margin-left: 80'><strong>Ambiguidades encontradas no texto serão marcadas em vermelho<br><br></strong></p>")
 for counter in range(1,corpora.quantidadeFrases+1):
     #print counter
     sentencaAnalisada = Frase(counter)
