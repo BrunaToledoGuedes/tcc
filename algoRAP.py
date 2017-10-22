@@ -117,6 +117,11 @@ class ArvoreSintatica:
         #flag_n = 0 #flag para ignorar a parte da frase que não preciso
         fraseSelecionada = 0
         linhaNivel = ' '
+        linhaAnterior = ' '
+        linhaNivelAnterior = ' '
+        nivel = 1
+        nivelAnterior = 1
+        nivelLinhaAnterior = 1
         encontrouMesmoTipo = 0
         for linha in self.texto :
            if linha.split(" ")[0] == str(fraseNumero+1)+"." :
@@ -125,33 +130,10 @@ class ArvoreSintatica:
               fraseSelecionada = 1  
  
            if fraseSelecionada == 1:
-              nivel = linha.count('|')
-              if nivel == 1:
-                 linhaNivel = linha
+              nivel = linha.find("-")  #linha.count('|')
+              linhaNivel = linhaAnterior
               encontrou = string.find(linha,tag)
-              #codigo antigo if flag_n == 100:
-              #   if linha[:1] <> ' ':
-              #      flag_n = 0
-              #print 'a'
-              #print string.find(linha,'-N&amp;')
-              #print 'b'
-              #if string.find(linha,'-N&amp;') <> -1:   # executar as linhas somente se não for dependente -N<
-              #   flag_n = 100
               if encontrou <> -1:
-                 #codigo antigo   if flag_n <> 100: 
-                 #         if tag=='-SUBJ' :
-                 #            if string.find(linha,':np') <> -1:
-                 #                flag = 100  #a linha que preciso está abaixo da linha com a tag
-                 #            else:
-                 #               if string.find(linha,':prop') <> -1:
-                 #                  resultado = linha
-                 #         else:
-                 #            if tag=='-ACC' :
-                 #               if string.find(linha,':np') <> -1:
-                 #                   flag = 100  #a linha que preciso está abaixo da linha com a tag
-                 #               else:
-                 #                  if string.find(linha,':prop') <> -1:
-                 #                     resultado = linha
                  if tipo == "pron":
                     encontrouMesmoTipo = string.find(linha, '"ela"')
                     if encontrouMesmoTipo <> -1:
@@ -170,7 +152,13 @@ class ArvoreSintatica:
                        resultado = linha  
                        #qtde = qtde + 1   
                  else:
-                    encontrouMesmoTipo = string.find(linhaNivel,tipo)
+                    #print "linha "
+                    #print linha
+                    #print "linhaAnterior"
+                    #print linhaAnterior
+                    #print "linhaNivelAnterior"
+                    #print linhaNivelAnterior
+                    encontrouMesmoTipo = string.find(linhaNivelAnterior,tipo)
                     palavraReservada1  = string.find(linha,'pronome') 
                     if encontrouMesmoTipo <> -1 and palavraReservada1 == -1:
                        resultado = linha  
@@ -182,6 +170,20 @@ class ArvoreSintatica:
                           #qtde = qtde + 1   
                        #else:
                        #   resultado = linha
+              #print "nivel "
+              #print nivel
+              #print "nivelAnterior"
+              #print nivelAnterior
+              #print "nivelLinhaAnterior"
+              #print nivelLinhaAnterior
+              if nivel > nivelLinhaAnterior :
+                 linhaNivelAnterior = linhaAnterior
+                 nivelAnterior = nivelLinhaAnterior
+              nivelLinhaAnterior = nivel
+              linhaAnterior = linha
+              #if nivel-nivelAnterior > 2 :
+                 #linhaAnterior = linha
+                 #nivelAnterior = nivel - 2
               #if flag == 100:
                 #print(linha+"<br>")
               #  if string.find(linha,'-N&lt') == -1:   # executar as linhas somente se não for dependente -N<
@@ -346,7 +348,7 @@ class ArvoreSintatica:
                           print("<br>")
 
         return qtde
-
+    
     def fecharArquivo(self):
         self.arq.close()
         #renomear arquivo
@@ -492,7 +494,6 @@ class Frase:
                           linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
                           s = linhaCompl.split("\t")
                           self.complementoVerbal=s[len(s)-1]
-
         return self.complementoVerbal
 
     def finalizarFrase(self):
@@ -526,18 +527,20 @@ for counter in range(1,corpora.quantidadeFrases+1):
        existeVerboParticipio = "Encontrado"
     print ("<br><p style='margin-left: 80'><strong> Frase em An&aacute;lise: "+sentencaAnalisada.conteudo.capitalize()+"</strong></p>")
     if sentencaAnalisada.ambiguidade :
+       sentencaAnalisada.obterAntecedente(counter)
        print ("<p style='margin-left: 80'>Verbo Auxiliar: "+str(existeVerboAuxiliar))   
        if existeVerboAuxiliar=="Encontrado":
           print (" => "+sentencaAnalisada.verboAuxiliar+"</p>")
        print ("<p style='margin-left: 80'>Verbo no Partic&iacute;pio: "+str(existeVerboParticipio))
        if existeVerboParticipio=="Encontrado":
           print (" => "+sentencaAnalisada.verboParticipio+"</p>")
-       sentencaAnalisada.obterSujeito(counter)
-       #print ("<br> Linha onde o Sujeito foi localizado: "+linhaSujeito+" <br>")
-       print ("<p style='margin-left: 80'>Sujeito localizado: "+sentencaAnalisada.sujeito+"</p>")
-       sentencaAnalisada.obterComplementoVerbal(counter)
-       print ("<p style='margin-left: 80'>Complemento Verbal localizado: "+sentencaAnalisada.complementoVerbal+"</p>")
-       sentencaAnalisada.obterAntecedente(counter)
+       if sentencaAnalisada.termoSelecionado == "Sujeito" :
+          sentencaAnalisada.obterSujeito(counter)
+          #print ("<br> Linha onde o Sujeito foi localizado: "+linhaSujeito+" <br>")
+          print ("<p style='margin-left: 80'>Sujeito localizado: "+sentencaAnalisada.sujeito+"</p>")
+       else:
+          sentencaAnalisada.obterComplementoVerbal(counter)
+          print ("<p style='margin-left: 80'>Complemento Verbal localizado: "+sentencaAnalisada.complementoVerbal+"</p>")
        if sentencaAnalisada.antecedente == "N&atilde;o encontrado":
           print ("<p style='margin-left: 80'><strong> Entendo que a solu&ccedil;&atilde;o seria o " +sentencaAnalisada.termoSelecionado+ ", mas não fui capaz de identificá-lo para resolver a ambiguidade <br></strong></p>")
        else:
