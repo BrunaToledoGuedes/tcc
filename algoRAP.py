@@ -99,17 +99,13 @@ class ArvoreSintatica:
         resultado = "N&atilde;o encontrado" 
         encontrou = -1
         for linha in self.texto :
-            #print(linha+"<br>")
-            #print(encontrou)
             if encontrou <> -1:
-               #print linha.split(" ")[0]
-               #print str(fraseNumero)+"."
                if linha.split(" ")[0] == str(fraseNumero)+"." :
                   resultado = linha
             encontrou = string.find(linha,"SOURCE: Running text")
         return resultado
           
-    def obterTermo(self, tag, fraseNumero):
+    def obterTermo(self, tag, fraseNumero, tipo):
         # objetivo: a função retornará a linha do arquivo exported.html 
         #           que contém o termo que se quer obter.
         # parametros:
@@ -117,57 +113,82 @@ class ArvoreSintatica:
         #            tag no arquivo exported.html
         resultado = "N&atilde;o encontrado" 
         encontrou = -1
-        flag = 0  #o termo que preciso está na linha abaixo, podem ser duas linhas abaixo também
-        flag_n = 0 #flag para ignorar a parte da frase que não preciso
+        #flag = 0  #o termo que preciso está na linha abaixo, podem ser duas linhas abaixo também
+        #flag_n = 0 #flag para ignorar a parte da frase que não preciso
         fraseSelecionada = 0
+        linhaNivel = ' '
+        encontrouMesmoTipo = 0
         for linha in self.texto :
            if linha.split(" ")[0] == str(fraseNumero+1)+"." :
               fraseSelecionada = 0  
            if linha.split(" ")[0] == str(fraseNumero)+"." :
               fraseSelecionada = 1  
-
+ 
            if fraseSelecionada == 1:
-
-              #print(tag+"<br>")
-              #print(linha+"<br>")
-              #print 'flag_n'
-              #print(flag_n)
-              #print 'a'
-              #print string.find(linha,'-N&amp;')
-              #print 'b'
+              nivel = linha.count('|')
+              if nivel == 1:
+                 linhaNivel = linha
               encontrou = string.find(linha,tag)
-              if flag_n == 100:
-                 if linha[:1] <> ' ':
-                    flag_n = 0
+              #codigo antigo if flag_n == 100:
+              #   if linha[:1] <> ' ':
+              #      flag_n = 0
               #print 'a'
               #print string.find(linha,'-N&amp;')
               #print 'b'
-              if string.find(linha,'-N&amp;') <> -1:   # executar as linhas somente se não for dependente -N<
-                 flag_n = 100
+              #if string.find(linha,'-N&amp;') <> -1:   # executar as linhas somente se não for dependente -N<
+              #   flag_n = 100
               if encontrou <> -1:
-                    if flag_n <> 100: 
-                          if tag=='-SUBJ' :
-                             if string.find(linha,':np') <> -1:
-                                 flag = 100  #a linha que preciso está abaixo da linha com a tag
-                             else:
-                                if string.find(linha,':prop') <> -1:
-                                   resultado = linha
-                          else:
-                             if tag=='-ACC' :
-                                if string.find(linha,':np') <> -1:
-                                    flag = 100  #a linha que preciso está abaixo da linha com a tag
-                                else:
-                                   if string.find(linha,':prop') <> -1:
-                                      resultado = linha
-                             else:
-                                resultado = linha
-              if flag == 100:
+                 #codigo antigo   if flag_n <> 100: 
+                 #         if tag=='-SUBJ' :
+                 #            if string.find(linha,':np') <> -1:
+                 #                flag = 100  #a linha que preciso está abaixo da linha com a tag
+                 #            else:
+                 #               if string.find(linha,':prop') <> -1:
+                 #                  resultado = linha
+                 #         else:
+                 #            if tag=='-ACC' :
+                 #               if string.find(linha,':np') <> -1:
+                 #                   flag = 100  #a linha que preciso está abaixo da linha com a tag
+                 #               else:
+                 #                  if string.find(linha,':prop') <> -1:
+                 #                     resultado = linha
+                 if tipo == "pron":
+                    encontrouMesmoTipo = string.find(linha, '"ela"')
+                    if encontrouMesmoTipo <> -1:
+                       resultado = linha  
+                       #qtde = qtde + 1   
+                    encontrouMesmoTipo = string.find(linha, '"ele"')
+                    if encontrouMesmoTipo <> -1:
+                       resultado = linha  
+                       #qtde = qtde + 1   
+                    encontrouMesmoTipo = string.find(linha, '"seu"')
+                    if encontrouMesmoTipo <> -1:
+                       resultado = linha  
+                       #qtde = qtde + 1   
+                    encontrouMesmoTipo = string.find(linha, '"sua"')
+                    if encontrouMesmoTipo <> -1:
+                       resultado = linha  
+                       #qtde = qtde + 1   
+                 else:
+                    encontrouMesmoTipo = string.find(linhaNivel,tipo)
+                    palavraReservada1  = string.find(linha,'pronome') 
+                    if encontrouMesmoTipo <> -1 and palavraReservada1 == -1:
+                       resultado = linha  
+                       #qtde = qtde + 1   
+                    else:
+                       encontrouMesmoTipo = string.find(linha,tipo)
+                       if encontrouMesmoTipo <> -1:
+                          resultado = linha  
+                          #qtde = qtde + 1   
+                       #else:
+                       #   resultado = linha
+              #if flag == 100:
                 #print(linha+"<br>")
-                if string.find(linha,'-N&lt') == -1:   # executar as linhas somente se não for dependente -N<
-                   if string.find(linha,'-H:n') <> -1:
-                      resultado = linha
-                      flag=0 
-                      #print('achou com flag %%%%%%%%%%%%%%')
+              #  if string.find(linha,'-N&lt') == -1:   # executar as linhas somente se não for dependente -N<
+              #     if string.find(linha,'-H:n') <> -1:
+              #        resultado = linha
+              #        flag=0 
+              #        #print('achou com flag %%%%%%%%%%%%%%')
         return resultado
           
     def obterQtdeTermo(self, tag, fraseNumero, tipo):
@@ -193,6 +214,7 @@ class ArvoreSintatica:
         for linha in self.texto :
            #print 'qtde'
            #print qtde
+           # trabalhando somente com a frase enviada como parametro
            if linha.split(" ")[0] == str(fraseNumero+1)+"." :
               fraseSelecionada = 0  
            if linha.split(" ")[0] == str(fraseNumero)+"." :
@@ -201,7 +223,6 @@ class ArvoreSintatica:
            if fraseSelecionada == 1:
               #print 'fraseselecionada'
               #print fraseSelecionada
-              #print(linha+"<br>")
               #print 'fraseNumero' 
               #print fraseNumero 
 
@@ -213,6 +234,7 @@ class ArvoreSintatica:
               #print encontrou
               if encontrou <> -1:
                  #print "--------------------------------------------------------------------------------------------------------"
+                 #print("<br>"+linha+"&*&*&*&*&*<br>")
                  #print(linha+"<br>")
                  #print 'fraseNumero' 
                  #print fraseNumero 
@@ -291,7 +313,7 @@ class ArvoreSintatica:
                     if encontrouMesmoTipo <> -1 and palavraReservada1 == -1:
                        qtde = qtde + 1   
                        print("<br>")
-                       print("linha nivel<br>")
+                       print("linha nivel %<br>")
                        print linhaNivel
                        print("<br>")
                        print linha
@@ -310,7 +332,7 @@ class ArvoreSintatica:
                           qtde = qtde + 1   
                           print("<br>")
                           print("linha<br>")
-                          print linhaNivel
+                          print linha
                           print("<br>")
                           print linha
                           print("<br>")
@@ -360,20 +382,21 @@ class Frase:
     def obterAmbiguidade(self, fraseNumero):
         obterQtdeAdjuntoProprio       = 0  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ADVL") 
         obterQtdeAdjuntoSubstantivo   = 0  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ADVL" )
-        obterQtdeSujeitoPredicado     = 0  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "P&amp;lt;")
+        obterQtdeSujeitoPredicado     = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "P&amp;lt;")
         obterQtdeSubstantivoPredicado = 0  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "P&amp;lt;")
         obterQtdeSujeitoProprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "SUBJ")
+        obterQtdeSujeito2Proprio      = self.arvoreGerada.obterQtdeTermo("SUBJ:n(", fraseNumero, "SUBJ")
         obterQtdeSujeitoSubstantivo   = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "SUBJ")
         obterQtdeComplODProprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ACC")   # ACC + :prop       - OBJETO DIRETO
         obterQtdeComplODSubstantivo   = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ACC")   # ACC + H:n     - OBJETO DIRETO
-        obterQtdeComplOD2Proprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
-        obterQtdeComplOD2Substantivo   = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, ":pp")   # :pp + H:n     - OBJETO DIRETO
+        obterQtdeComplOD2Proprio      = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
+        obterQtdeComplOD2Substantivo  = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PASS:pp")   # :pp + H:n     - OBJETO DIRETO
         #obterQtdeComplementoOP       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero # PIV +              - OBJETO PREPOSICIONADO
         obterQtdeComplOIProprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")   # PIV + :prop       - OBJETO INDIRETO
         obterQtdeComplOISubstantivo   = self.arvoreGerada.obterQtdeTermo(":H:n", fraseNumero, "PIV")   # PIV + :prop   - OBJETO INDIRETO
         obterQtdePronomePessoal       = self.arvoreGerada.obterQtdeTermo("pers", fraseNumero, "pron")
         obterQtdePronomeDemonstrativo = self.arvoreGerada.obterQtdeTermo("det", fraseNumero, "pron")
-        obterQtdeSujeito = obterQtdeSubstantivoPredicado + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo + obterQtdeAdjuntoProprio + obterQtdeAdjuntoSubstantivo
+        obterQtdeSujeito = obterQtdeSujeito2Proprio + obterQtdeSubstantivoPredicado + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo + obterQtdeAdjuntoProprio + obterQtdeAdjuntoSubstantivo
         obterQtdePronome = obterQtdePronomePessoal + obterQtdePronomeDemonstrativo
         print ("obterQtdeSujeito")
         print obterQtdeSujeito
@@ -403,34 +426,67 @@ class Frase:
           
     # obter o verbo auxiliar
     def obterVerboAuxiliar(self, fraseNumero):
-        obterVerboAuxiliar = self.arvoreGerada.obterTermo("-VAUX:v*fin", fraseNumero)
+        obterVerboAuxiliar = self.arvoreGerada.obterTermo("-VAUX:v*fin", fraseNumero,"-VAUX:v*fin")
         s = obterVerboAuxiliar.split("\t")
         self.verboAuxiliar=s[len(s)-1]
         if obterVerboAuxiliar == "N&atilde;o encontrado":
-           obterVerboAuxiliar = self.arvoreGerada.obterTermo("-P:v*fin", fraseNumero)
+           obterVerboAuxiliar = self.arvoreGerada.obterTermo("-P:v*fin", fraseNumero, "-P:v*fin")
            s = obterVerboAuxiliar.split("\t")
            self.verboAuxiliar=s[len(s)-1]
         return self.verboAuxiliar
         
     # obter o verbo no particípio
     def obterVerboParticipio(self, fraseNumero):
-        obterVerboParticipio = self.arvoreGerada.obterTermo("-MV:v*pcp", fraseNumero)
+        obterVerboParticipio = self.arvoreGerada.obterTermo("-MV:v*pcp", fraseNumero, "-MV:v*pcp")
         s = obterVerboParticipio.split("\t") 
         self.verboParticipio=s[len(s)-1] 
         return self.verboParticipio
         
     # obter o sujeito
     def obterSujeito(self, fraseNumero):
-        linhaSujeito = self.arvoreGerada.obterTermo("-SUBJ", fraseNumero)
+        linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "SUBJ")
         s = linhaSujeito.split("\t")
         self.sujeito=s[len(s)-1]
+        if linhaSujeito == "N&atilde;o encontrado":
+           linhaSujeito = self.arvoreGerada.obterTermo("SUBJ:n(", fraseNumero, "SUBJ")
+           s = linhaSujeito.split("\t")
+           self.sujeito=s[len(s)-1]
+           if linhaSujeito == "N&atilde;o encontrado":
+              linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
+              s = linhaSujeito.split("\t")
+              self.sujeito=s[len(s)-1]
+              if linhaSujeito == "N&atilde;o encontrado":
+                 linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
+                 s = linhaSujeito.split("\t")
+                 self.sujeito=s[len(s)-1]
         return self.sujeito
           
     # obter o complemento verbal
     def obterComplementoVerbal(self, fraseNumero):
-        linhaCompl = self.arvoreGerada.obterTermo("-ACC", fraseNumero)
+        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
         s = linhaCompl.split("\t")
         self.complementoVerbal=s[len(s)-1]
+        if linhaCompl == "N&atilde;o encontrado":
+           linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+           s = linhaCompl.split("\t")
+           self.complementoVerbal=s[len(s)-1]
+           if linhaCompl == "N&atilde;o encontrado":
+              linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+              s = linhaCompl.split("\t")
+              self.complementoVerbal=s[len(s)-1]
+              if linhaCompl == "N&atilde;o encontrado":
+                 linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+                 s = linhaCompl.split("\t")
+                 self.complementoVerbal=s[len(s)-1]
+                 if linhaCompl == "N&atilde;o encontrado":
+                    linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+                    s = linhaCompl.split("\t")
+                    self.complementoVerbal=s[len(s)-1]
+                    if linhaCompl == "N&atilde;o encontrado":
+                       linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+                       s = linhaCompl.split("\t")
+                       self.complementoVerbal=s[len(s)-1]
+ 
         return self.complementoVerbal
 
     def finalizarFrase(self):
@@ -443,7 +499,7 @@ class Frase:
 # imprimindo cabeçalhos
 cabecalho()
 corpora = Corpora()
-print ("<br>")
+print ("<br><p style='margin-left: 80'><strong> Ambiguidades Encontradas no Texto<br><br></strong></p>")
 for counter in range(1,corpora.quantidadeFrases+1):
     #print counter
     sentencaAnalisada = Frase(counter)
@@ -452,45 +508,38 @@ for counter in range(1,corpora.quantidadeFrases+1):
        print ("<br><p style='background-color: #ff0000; color: #fff'>"+sentencaAnalisada.conteudo.capitalize()+"</p>")
     else:
        print ("<br><p >"+sentencaAnalisada.conteudo.capitalize()+"</p>")
-
-'''for counter in range(1,corpora.quantidadeFrases+1):
-    #print counter
-
+print corpora.quantidadeFrases+1
+for counter in range(1,corpora.quantidadeFrases+1):
     sentencaAnalisada = Frase(counter)
-
     # mostrar resultados em tela
     existeVerboAuxiliar = "N&atilde;o encontrado"
     if sentencaAnalisada.obterVerboAuxiliar(counter) <> "N&atilde;o encontrado":
        existeVerboAuxiliar = "Encontrado"
-
     existeVerboParticipio = "N&atilde;o encontrado"
     if sentencaAnalisada.obterVerboParticipio(counter) <> "N&atilde;o encontrado":
        existeVerboParticipio = "Encontrado"
-   
     print ("<br><p style='margin-left: 80'><strong> Frase em An&aacute;lise: "+sentencaAnalisada.conteudo.capitalize()+"</strong></p>")
-
     if sentencaAnalisada.ambiguidade :
        print ("<p style='margin-left: 80'>Verbo Auxiliar: "+str(existeVerboAuxiliar))   
        if existeVerboAuxiliar=="Encontrado":
           print (" => "+sentencaAnalisada.verboAuxiliar+"</p>")
-
        print ("<p style='margin-left: 80'>Verbo no Partic&iacute;pio: "+str(existeVerboParticipio))
        if existeVerboParticipio=="Encontrado":
           print (" => "+sentencaAnalisada.verboParticipio+"</p>")
-   
        sentencaAnalisada.obterSujeito(counter)
        #print ("<br> Linha onde o Sujeito foi localizado: "+linhaSujeito+" <br>")
        print ("<p style='margin-left: 80'>Sujeito localizado: "+sentencaAnalisada.sujeito+"</p>")
-
        sentencaAnalisada.obterComplementoVerbal(counter)
        print ("<p style='margin-left: 80'>Complemento Verbal localizado: "+sentencaAnalisada.complementoVerbal+"</p>")
-
        sentencaAnalisada.obterAntecedente(counter)
-       print ("<p style='margin-left: 80'><strong> Nesta frase, o algoritmo selecionou como solu&ccedil;&atilde;o para o antecedente o " +sentencaAnalisada.termoSelecionado+ " => "+sentencaAnalisada.antecedente+" <br></strong></p>")
+       if sentencaAnalisada.antecedente == "N&atilde;o encontrado":
+          print ("<p style='margin-left: 80'><strong> Entendo que a solu&ccedil;&atilde;o seria o " +sentencaAnalisada.termoSelecionado+ ", mas não fui capaz de identificá-lo para resolver a ambiguidade <br></strong></p>")
+       else:
+          print ("<p style='margin-left: 80'><strong> Escolhi como solu&ccedil;&atilde;o para o antecedente o " +sentencaAnalisada.termoSelecionado+ " => "+sentencaAnalisada.antecedente+" <br></strong></p>")
     else:
        print "<br> Frase não possui ambiguidade anaforica pronominal <br>"
-	   
+   
 rodape()
 print ("</body></html>")
 sentencaAnalisada.finalizarFrase()
-'''
+
