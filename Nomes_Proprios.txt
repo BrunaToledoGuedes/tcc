@@ -1,0 +1,3 @@
+Professor
+Aluno
+Medico
