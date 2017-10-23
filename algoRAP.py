@@ -1,4 +1,4 @@
-#!C:\Program Files\EasyPHP-Devserver-17\eds-binaries\python\default\python.exe
+#!C:\python27\python.exe
 # -*- coding: utf-8 -*-
 import sys
 import string
@@ -85,7 +85,8 @@ class ArvoreSintatica:
     def __init__(self):
         try:
 #            with open('/Users/bruna/Downloads/exported.html', 'r') as self.arq:
-            with open('/Users/jguedes/Downloads/exported.html', 'r') as self.arq:
+#            with open('/Users/jguedes/Downloads/exported.html', 'r') as self.arq:
+            with open('d:/Users/jose.guedes/Downloads/exported.html', 'r') as self.arq:
                self.texto = self.arq.readlines()
         except IOError:
             print ("<p style='margin-left: 80'><strong>Não encontrei o arquivo exported.html</strong></p>")
@@ -182,7 +183,6 @@ class ArvoreSintatica:
               linhaNivel = linhaAnterior
               encontrou = string.find(linha,tag)
               if encontrou <> -1:
-                 #print ("<br><p style='margin-left: 80'><strong> Frase em An&aacute;lise: "+sentencaAnalisada.conteudo+"</strong></p>")
                  if tipo == "pron":
                     encontrouMesmoTipo = string.find(linha, '"ela"')
                     if encontrouMesmoTipo <> -1:
@@ -215,6 +215,7 @@ class ArvoreSintatica:
     
     def fecharArquivo(self):
         self.arq.close()
+        self.arqNomes.close()
         #renomear arquivo
         #/Users/bruna/Downloads/exported.html
         #os.remove('/Users/bruna/Downloads/_exported.html')
@@ -244,6 +245,14 @@ class Frase:
         #self.ambiguidade = True   #criar logica para verificar se a frase tem ambiguidade
         #self.antecedente = ""   # soluçao
         #print fraseNumero
+        try:
+            #with open('Nomes_Proprios.txt', 'r') as self.arqNomes:
+            with open('Nomes_Proprios.txt', 'r') as self.arqNomes:
+               self.nomes = self.arqNomes.readlines()
+        except IOError:
+            print ("<p style='margin-left: 80'><strong>Não encontrei o arquivo Nomes_Proprios.txt</strong></p>")
+            rodape()
+            sys.exit(0)
     # obter ambiguidade
     def obterAmbiguidade(self, fraseNumero):
         obterQtdeAdjuntoProprio       = 0  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ADVL") 
@@ -314,22 +323,18 @@ class Frase:
         linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "SUBJ")
         s = linhaSujeito.split("\t")
         self.sujeito=s[len(s)-1]
-        print self.sujeito
-        if self.nomeValido(self.sujeito) == False:
-           if linhaSujeito == "N&atilde;o encontrado":
-              linhaSujeito = self.arvoreGerada.obterTermo("SUBJ:n(", fraseNumero, "SUBJ")
+        if linhaSujeito == "N&atilde;o encontrado" or self.nomeValido(self.sujeito) == False:
+           linhaSujeito = self.arvoreGerada.obterTermo("SUBJ:n(", fraseNumero, "SUBJ")
+           s = linhaSujeito.split("\t")
+           self.sujeito=s[len(s)-1]
+           if linhaSujeito == "N&atilde;o encontrado" or self.nomeValido(self.sujeito) == False:
+              linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
               s = linhaSujeito.split("\t")
               self.sujeito=s[len(s)-1]
-              if self.nomeValido(self.sujeito) == False:
-                 if linhaSujeito == "N&atilde;o encontrado":
-                    linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
-                    s = linhaSujeito.split("\t")
-                    self.sujeito=s[len(s)-1]
-                    if self.nomeValido(self.sujeito) == False:
-                       if linhaSujeito == "N&atilde;o encontrado":
-                          linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
-                          s = linhaSujeito.split("\t")
-                          self.sujeito=s[len(s)-1]
+              if linhaSujeito == "N&atilde;o encontrado" or self.nomeValido(self.sujeito) == False:
+                 linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
+                 s = linhaSujeito.split("\t")
+                 self.sujeito=s[len(s)-1]
 
         return self.sujeito
           
@@ -339,49 +344,52 @@ class Frase:
         s = linhaCompl.split("\t")
         self.complementoVerbal=s[len(s)-1]
         #if self.nomeValido(self.complementoVerbal) == False:
-		
-		to do :  
-		1) colocar todos os ifs iguais a esse da linha abaixo
-		2) montar rotina para ler um arquivo texto com todas as palavras que podem representar nome proprio
-		3) procurar um texto adequado para realizar testes
+        #to do :  
+        #1) colocar todos os ifs iguais a esse da linha abaixo
+        #2) montar rotina para ler um arquivo texto com todas as palavras que podem representar nome proprio
+        #3) procurar um texto adequado para realizar testes
         if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-              print self.complementoVerbal
-              print "--------------------------------------------------------------"
-              linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+           linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+           s = linhaCompl.split("\t")
+           self.complementoVerbal=s[len(s)-1]
+           if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
+              linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
               s = linhaCompl.split("\t")
               self.complementoVerbal=s[len(s)-1]
-              if self.nomeValido(self.complementoVerbal) == False:
-                 if linhaCompl == "N&atilde;o encontrado":
-                    linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+              if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
+                 linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+                 s = linhaCompl.split("\t")
+                 self.complementoVerbal=s[len(s)-1]
+                 if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
+                    linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
                     s = linhaCompl.split("\t")
                     self.complementoVerbal=s[len(s)-1]
-                    if self.nomeValido(self.complementoVerbal) == False:
-                       if linhaCompl == "N&atilde;o encontrado":
-                          linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+                    if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
+                       linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+                       s = linhaCompl.split("\t")
+                       self.complementoVerbal=s[len(s)-1]
+                       if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
+                          linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
                           s = linhaCompl.split("\t")
                           self.complementoVerbal=s[len(s)-1]
-                          if self.nomeValido(self.complementoVerbal) == False:
-                             if linhaCompl == "N&atilde;o encontrado":
-                                linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
-                                s = linhaCompl.split("\t")
-                                self.complementoVerbal=s[len(s)-1]
-                                if self.nomeValido(self.complementoVerbal) == False:
-                                   if linhaCompl == "N&atilde;o encontrado":
-                                      linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
-                                      s = linhaCompl.split("\t")
-                                      self.complementoVerbal=s[len(s)-1]
-                                      if self.nomeValido(self.complementoVerbal) == False:
-                                         if linhaCompl == "N&atilde;o encontrado":
-                                            linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
-                                            s = linhaCompl.split("\t")
-                                            self.complementoVerbal=s[len(s)-1]
         return self.complementoVerbal
 
     def nomeValido(self, texto):
         resultado = True
         if texto.lower() == texto:
            resultado = False
+        if sentencaAnalisada.nomesProprios(texto) == True:
+           resultado = True
         return resultado
+        
+    def nomesProprios(self, nome):
+        retorno = False
+        
+        for linhaN in self.nomes :
+            resultado = string.find(linhaN.lower(),nome.lower()) 
+            if resultado <> -1:
+               retorno = True
+        return retorno
 
     def finalizarFrase(self):
         self.arvoreGerada.fecharArquivo()
@@ -393,6 +401,7 @@ class Frase:
 # imprimindo cabeçalhos
 cabecalho()
 corpora = Corpora()
+
 print ("<br><p style='margin-left: 80'><strong>Ambiguidades encontradas no texto serão marcadas em vermelho<br><br></strong></p>")
 for counter in range(1,corpora.quantidadeFrases+1):
     #print counter
