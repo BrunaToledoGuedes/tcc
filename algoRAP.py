@@ -269,6 +269,7 @@ class Frase:
         obterQtdeComplOISubstantivo   = 0
         obterQtdePronomePessoal       = 0
         obterQtdePronomeDemonstrativo = 0
+        obterQtdeComplAdverbio        = 0
         sujeitosEcomplementos = ' '
   
         linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "SUBJ")
@@ -375,10 +376,10 @@ class Frase:
         else:
            repetido = True
         if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplOIProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")   # PIV + :prop       - OBJETO INDIRETO
+           obterQtdeComplOIProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")  
 
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
         s = linhaCompl.split("\t")
         self.complementoVerbal=s[len(s)-1]
         if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
@@ -386,51 +387,65 @@ class Frase:
         else:
            repetido = True
         if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplOISubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo(":H:n", fraseNumero, "PIV")   # PIV + :prop   - OBJETO INDIRETO
+           obterQtdeComplOISubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PIV")   
+
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplAdverbio   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "P&amp;lt;")   
 
         obterQtdePronomePessoal       = self.arvoreGerada.obterQtdeTermo("pers", fraseNumero, "pron")
         obterQtdePronomeDemonstrativo = self.arvoreGerada.obterQtdeTermo("det", fraseNumero, "pron")
-        obterQtdeSujeito = obterQtdeComplOIProprio + obterQtdeComplOD3Proprio + obterQtdeSujeito2Proprio + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo
+        obterQtdeSujeito = obterQtdeComplAdverbio + obterQtdeComplOIProprio + obterQtdeComplOD3Proprio + obterQtdeSujeito2Proprio + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo
         obterQtdePronome = obterQtdePronomePessoal + obterQtdePronomeDemonstrativo
-        #print ("obterQtdeSujeitoPredicado")
-        #print obterQtdeSujeitoPredicado
-        #print "<br>"
-        #print ("obterQtdeSujeitoProprio")
-        #print obterQtdeSujeitoProprio
-        #print "<br>"
-        #print ("obterQtdeSujeito2Proprio")
-        #print obterQtdeSujeito2Proprio
-        #print "<br>"
-        #print ("obterQtdeSujeitoSubstantivo")
-        #print obterQtdeSujeitoSubstantivo
-        #print "<br>"
-        #print ("obterQtdeComplODProprio")
-        #print obterQtdeComplODProprio
-        #print "<br>"
-        #print ("obterQtdeComplODSubstantivo")
-        #print obterQtdeComplODSubstantivo
-        #print "<br>"
-        #print ("obterQtdeComplOD2Proprio")
-        #print obterQtdeComplOD2Proprio
-        #print "<br>"
-        #print ("obterQtdeComplOD2Substantivo")
-        #print obterQtdeComplOD2Substantivo
-        #print "<br>"
-        #print ("obterQtdeComplOD3Proprio")
-        #print obterQtdeComplOD3Proprio
-        #print "<br>"
-        #print ("obterQtdeComplOIProprio")
-        #print obterQtdeComplOIProprio
-        #print "<br>"
-        #print ("obterQtdeComplOISubstantivo")
-        #print obterQtdeComplOISubstantivo
-        #print "<br>"
-        #print ("obterQtdeSujeito")
-        #print obterQtdeSujeito
-        #print "<br>"
-        #print ("obterQtdePronome")
-        #print obterQtdePronome
-        #print "---------------------------------------------------------------------------------"
+        print ("obterQtdeSujeitoPredicado")
+        print obterQtdeSujeitoPredicado
+        print "<br>"
+        print ("obterQtdeSujeitoProprio")
+        print obterQtdeSujeitoProprio
+        print "<br>"
+        print ("obterQtdeSujeito2Proprio")
+        print obterQtdeSujeito2Proprio
+        print "<br>"
+        print ("obterQtdeSujeitoSubstantivo")
+        print obterQtdeSujeitoSubstantivo
+        print "<br>"
+        print ("obterQtdeComplODProprio")
+        print obterQtdeComplODProprio
+        print "<br>"
+        print ("obterQtdeComplODSubstantivo")
+        print obterQtdeComplODSubstantivo
+        print "<br>"
+        print ("obterQtdeComplOD2Proprio")
+        print obterQtdeComplOD2Proprio
+        print "<br>"
+        print ("obterQtdeComplOD2Substantivo")
+        print obterQtdeComplOD2Substantivo
+        print "<br>"
+        print ("obterQtdeComplOD3Proprio")
+        print obterQtdeComplOD3Proprio
+        print "<br>"
+        print ("obterQtdeComplOIProprio")
+        print obterQtdeComplOIProprio
+        print "<br>"
+        print ("obterQtdeComplOISubstantivo")
+        print obterQtdeComplOISubstantivo
+        print "<br>"
+        print ("obterQtdeComplAdverbio")
+        print obterQtdeComplAdverbio
+        print "<br>"
+        print ("obterQtdeSujeito")
+        print obterQtdeSujeito
+        print "<br>"
+        print ("obterQtdePronome")
+        print obterQtdePronome
+        print "---------------------------------------------------------------------------------"
         if obterQtdeSujeito > 1 and obterQtdePronome > 0:
            self.ambiguidade = True
         else:
@@ -524,15 +539,19 @@ class Frase:
                        s = linhaCompl.split("\t")
                        self.complementoVerbal=s[len(s)-1]
                        if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                          linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+                          linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
                           s = linhaCompl.split("\t")
                           self.complementoVerbal=s[len(s)-1]
                           if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
                              linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
                              s = linhaCompl.split("\t")
                              self.complementoVerbal=s[len(s)-1]
-                             if self.nomeValido(self.complementoVerbal) == False:
-                                self.complementoVerbal = "N&atilde;o encontrado"
+                             if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
+                                linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
+                                s = linhaCompl.split("\t")
+                                self.complementoVerbal=s[len(s)-1]
+                                if self.nomeValido(self.complementoVerbal) == False:
+                                   self.complementoVerbal = "N&atilde;o encontrado"
         return self.complementoVerbal
 
     def nomeValido(self, texto):
