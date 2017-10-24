@@ -255,27 +255,179 @@ class Frase:
             sys.exit(0)
     # obter ambiguidade
     def obterAmbiguidade(self, fraseNumero):
-        obterQtdeAdjuntoProprio       = 0  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ADVL") 
-        obterQtdeAdjuntoSubstantivo   = 0  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ADVL" )
-        obterQtdeSujeitoPredicado     = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "P&amp;lt;")
-        obterQtdeSubstantivoPredicado = 0  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "P&amp;lt;")
-        obterQtdeSujeitoProprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "SUBJ")
-        obterQtdeSujeito2Proprio      = self.arvoreGerada.obterQtdeTermo("SUBJ:n(", fraseNumero, "SUBJ")
-        obterQtdeSujeitoSubstantivo   = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "SUBJ")
-        obterQtdeComplODProprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ACC")   # ACC + :prop       - OBJETO DIRETO
-        obterQtdeComplODSubstantivo   = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ACC")   # ACC + H:n     - OBJETO DIRETO
-        obterQtdeComplOD2Proprio      = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
-        obterQtdeComplOD2Substantivo  = self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PASS:pp")   # :pp + H:n     - OBJETO DIRETO
-        obterQtdeComplOD3Proprio      = self.arvoreGerada.obterQtdeTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")   # :pp + :prop       - OBJETO DIRETO
-        #obterQtdeComplementoOP       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero # PIV +              - OBJETO PREPOSICIONADO
-        obterQtdeComplOIProprio       = self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")   # PIV + :prop       - OBJETO INDIRETO
-        obterQtdeComplOISubstantivo   = self.arvoreGerada.obterQtdeTermo(":H:n", fraseNumero, "PIV")   # PIV + :prop   - OBJETO INDIRETO
+ 
+        obterQtdeSujeitoProprio       = 0
+        obterQtdeSujeitoPredicado     = 0
+        obterQtdeSujeito2Proprio      = 0
+        obterQtdeSujeitoSubstantivo   = 0
+        obterQtdeComplODProprio       = 0
+        obterQtdeComplODSubstantivo   = 0
+        obterQtdeComplOD2Proprio      = 0
+        obterQtdeComplOD2Substantivo  = 0
+        obterQtdeComplOD3Proprio      = 0
+        obterQtdeComplOIProprio       = 0
+        obterQtdeComplOISubstantivo   = 0
+        obterQtdePronomePessoal       = 0
+        obterQtdePronomeDemonstrativo = 0
+        sujeitosEcomplementos = ' '
+  
+        linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "SUBJ")
+        s = linhaSujeito.split("\t")
+        self.sujeito=s[len(s)-1]
+        sujeitosEcomplementos = self.sujeito
+        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True:
+           obterQtdeSujeitoProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "SUBJ")
+
+        repetido = False
+        linhaSujeito = self.arvoreGerada.obterTermo("SUBJ:n(", fraseNumero, "SUBJ")
+        s = linhaSujeito.split("\t")
+        self.sujeito=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.sujeito) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.sujeito
+        else:
+           repetido = True
+        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True and repetido == False :
+           obterQtdeSujeito2Proprio      = 1  #self.arvoreGerada.obterQtdeTermo("SUBJ:n(", fraseNumero, "SUBJ")
+
+        repetido = False
+        linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
+        s = linhaSujeito.split("\t")
+        self.sujeito=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.sujeito) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.sujeito
+        else:
+           repetido = True
+        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True and repetido == False :
+           obterQtdeSujeitoSubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "SUBJ")
+
+        repetido = False
+        linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
+        s = linhaSujeito.split("\t")
+        self.sujeito=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.sujeito) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.sujeito
+        else:
+           repetido = True
+        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True and repetido == False :
+           obterQtdeSujeitoPredicado     = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "P&amp;lt;")
+ 
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplODProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ACC")   # ACC + :prop       - OBJETO DIRETO
+
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplODSubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ACC")   # ACC + H:n     - OBJETO DIRETO
+   
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplOD2Proprio      = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
+
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplOD2Substantivo  = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PASS:pp")   # :pp + H:n     - OBJETO DIRETO
+
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplOD3Proprio      = 1  #self.arvoreGerada.obterQtdeTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")   # :pp + :prop       - OBJETO DIRETO
+
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplOIProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")   # PIV + :prop       - OBJETO INDIRETO
+
+        repetido = False
+        linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+        s = linhaCompl.split("\t")
+        self.complementoVerbal=s[len(s)-1]
+        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
+           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
+        else:
+           repetido = True
+        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
+           obterQtdeComplOISubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo(":H:n", fraseNumero, "PIV")   # PIV + :prop   - OBJETO INDIRETO
+
         obterQtdePronomePessoal       = self.arvoreGerada.obterQtdeTermo("pers", fraseNumero, "pron")
         obterQtdePronomeDemonstrativo = self.arvoreGerada.obterQtdeTermo("det", fraseNumero, "pron")
-        obterQtdeSujeito = obterQtdeComplOD3Proprio + obterQtdeSujeito2Proprio + obterQtdeSubstantivoPredicado + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo + obterQtdeAdjuntoProprio + obterQtdeAdjuntoSubstantivo
+        obterQtdeSujeito = obterQtdeComplOIProprio + obterQtdeComplOD3Proprio + obterQtdeSujeito2Proprio + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo
         obterQtdePronome = obterQtdePronomePessoal + obterQtdePronomeDemonstrativo
+        #print ("obterQtdeSujeitoPredicado")
+        #print obterQtdeSujeitoPredicado
+        #print "<br>"
+        #print ("obterQtdeSujeitoProprio")
+        #print obterQtdeSujeitoProprio
+        #print "<br>"
+        #print ("obterQtdeSujeito2Proprio")
+        #print obterQtdeSujeito2Proprio
+        #print "<br>"
+        #print ("obterQtdeSujeitoSubstantivo")
+        #print obterQtdeSujeitoSubstantivo
+        #print "<br>"
+        #print ("obterQtdeComplODProprio")
+        #print obterQtdeComplODProprio
+        #print "<br>"
+        #print ("obterQtdeComplODSubstantivo")
+        #print obterQtdeComplODSubstantivo
+        #print "<br>"
+        #print ("obterQtdeComplOD2Proprio")
+        #print obterQtdeComplOD2Proprio
+        #print "<br>"
+        #print ("obterQtdeComplOD2Substantivo")
+        #print obterQtdeComplOD2Substantivo
+        #print "<br>"
+        #print ("obterQtdeComplOD3Proprio")
+        #print obterQtdeComplOD3Proprio
+        #print "<br>"
+        #print ("obterQtdeComplOIProprio")
+        #print obterQtdeComplOIProprio
+        #print "<br>"
+        #print ("obterQtdeComplOISubstantivo")
+        #print obterQtdeComplOISubstantivo
+        #print "<br>"
         #print ("obterQtdeSujeito")
         #print obterQtdeSujeito
+        #print "<br>"
         #print ("obterQtdePronome")
         #print obterQtdePronome
         #print "---------------------------------------------------------------------------------"
@@ -335,6 +487,8 @@ class Frase:
                  linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
                  s = linhaSujeito.split("\t")
                  self.sujeito=s[len(s)-1]
+                 if self.nomeValido(self.sujeito) == False:
+                    self.sujeito = "N&atilde;o encontrado"
 
         return self.sujeito
           
@@ -348,30 +502,37 @@ class Frase:
         #1) colocar todos os ifs iguais a esse da linha abaixo
         #2) montar rotina para ler um arquivo texto com todas as palavras que podem representar nome proprio
         #3) procurar um texto adequado para realizar testes
+
         if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-           linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+           linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
            s = linhaCompl.split("\t")
            self.complementoVerbal=s[len(s)-1]
            if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-              linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+              linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
               s = linhaCompl.split("\t")
               self.complementoVerbal=s[len(s)-1]
               if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                 linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+                 linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
                  s = linhaCompl.split("\t")
                  self.complementoVerbal=s[len(s)-1]
                  if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                    linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+                    linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
                     s = linhaCompl.split("\t")
                     self.complementoVerbal=s[len(s)-1]
                     if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                       linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+                       linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
                        s = linhaCompl.split("\t")
                        self.complementoVerbal=s[len(s)-1]
                        if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                          linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+                          linhaCompl = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
                           s = linhaCompl.split("\t")
                           self.complementoVerbal=s[len(s)-1]
+                          if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
+                             linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+                             s = linhaCompl.split("\t")
+                             self.complementoVerbal=s[len(s)-1]
+                             if self.nomeValido(self.complementoVerbal) == False:
+                                self.complementoVerbal = "N&atilde;o encontrado"
         return self.complementoVerbal
 
     def nomeValido(self, texto):
@@ -402,7 +563,7 @@ class Frase:
 cabecalho()
 corpora = Corpora()
 
-print ("<br><p style='margin-left: 80'><strong>Ambiguidades encontradas no texto serão marcadas em vermelho<br><br></strong></p>")
+print ("<p><strong>Ambiguidades encontradas no texto serão marcadas em vermelho</strong></p>")
 for counter in range(1,corpora.quantidadeFrases+1):
     #print counter
     sentencaAnalisada = Frase(counter)
