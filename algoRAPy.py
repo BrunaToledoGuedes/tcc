@@ -298,12 +298,12 @@ class Frase:
                s = s[::-1]
                repetido = False
                if s not in palavras:
-                  if s not in self.sujeito:
-                     #if s not in self.agenteDaPassiva:
-                     palavras.append(s)
-                     #   print "<br> separar agentedapassiva"
-                     #   print palavras
-                     #   print "<br>"
+                  #if s not in self.sujeito:
+                  #if s not in self.agenteDaPassiva:
+                  palavras.append(s)
+                  #   print "<br> separar agentedapassiva"
+                  #   print palavras
+                  #   print "<br>"
         return palavras
 
     # obter ambiguidade
@@ -588,9 +588,10 @@ class Frase:
     def obterSujeito(self, fraseNumero):
         sujeitosEagentes = []
         linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "SUBJ")
-        self.sujeito = self.separarPalavra(linhaSujeito)
-        self.sujeito = self.validarNome(self.sujeito)
-        sujeitosEagentes.append(self.sujeito)
+        if linhaSujeito[0] <> "N&atilde;o encontrado":
+           self.sujeito = self.separarPalavra(linhaSujeito)
+           self.sujeito = self.validarNome(self.sujeito)
+           sujeitosEagentes.append(self.sujeito)
         if linhaSujeito[0] == "N&atilde;o encontrado" or not self.sujeito: # or repetido == False: 
            repetido = False
            linhaSujeito = self.arvoreGerada.obterTermo("SUBJ:n(", fraseNumero, "SUBJ")
@@ -601,21 +602,20 @@ class Frase:
                  sujeitosEagentes.append(self.sujeito)
               else:
                  repetido = True
-              if linhaSujeito[0] == "N&atilde;o encontrado" or not self.sujeito: # or repetido == False: 
-                 repetido = False
-                 linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
-                 if linhaSujeito[0] <> "N&atilde;o encontrado":
-                    self.sujeito = self.separarPalavra(linhaSujeito)
-                    self.sujeito = self.validarNome(self.sujeito)
-                    if self.sujeito not in sujeitosEagentes:
-                       sujeitosEagentes.append(self.sujeito)
-                    else:
-                       repetido = True
-                    if linhaSujeito[0] == "N&atilde;o encontrado": 
-                       self.sujeito = "N&atilde;o encontrado"
-
+           if linhaSujeito[0] == "N&atilde;o encontrado" or not self.sujeito: # or repetido == False: 
+              repetido = False
+              linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
+              if linhaSujeito[0] <> "N&atilde;o encontrado":
+                 self.sujeito = self.separarPalavra(linhaSujeito)
+                 self.sujeito = self.validarNome(self.sujeito)
+                 if self.sujeito not in sujeitosEagentes:
+                    sujeitosEagentes.append(self.sujeito)
+                 else:
+                    repetido = True
+              if linhaSujeito[0] == "N&atilde;o encontrado": 
+                 self.sujeito = "N&atilde;o encontrado"
         return self.sujeito
-          
+
     # obter o complemento verbal
     def obterAgenteDaPassiva(self, fraseNumero):
         
@@ -831,8 +831,8 @@ for counter in range(1,corpora.quantidadeFrases+1):
           if sentencaAnalisada.antecedente:
              print (sentencaAnalisada.antecedente[0])
           print (" <br></strong></p>")
-    else:
-       print "<br> Frase não possui ambiguidade anaforica pronominal <br>"
+    #else:
+       #print "<br> Frase não possui ambiguidade anaforica pronominal <br>"
    
 rodape()
 print ("</body></html>")
