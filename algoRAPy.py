@@ -135,15 +135,12 @@ class ArvoreSintatica:
                  encontrouMesmoTipo = string.find(linhaNivelAnterior,tipo)
                  palavraReservada1  = string.find(linha,'pronome') 
                  if encontrouMesmoTipo <> -1 and palavraReservada1 == -1:
-                    #print "<br> *** entrou <br> "
-                    #print "@ <br> "
-                    #print sujeitosEagentes
-                    #print "@ <br> "
-                    #print tipo
                     resultado.append(linha)
                  else:
                     encontrouMesmoTipo = string.find(linhaAnterior,tipo)
                     if encontrouMesmoTipo <> -1:
+                       if tag=="H:n" and tipo=="P&amp;lt;":
+                          print "<br> *** entrou2 <br> "
                        resultado.append(linha)
                     else:
                        encontrouMesmoTipo = string.find(linha,tipo)
@@ -152,7 +149,7 @@ class ArvoreSintatica:
               if nivel > nivelLinhaAnterior :
                  linhaNivelAnterior = linhaAnterior
                  nivelAnterior = nivelLinhaAnterior
-              #if tag=="P&amp;lt;" and tipo=="PASS":
+              #if tag=="H:n" and tipo=="PASS":
                  #print "<br> %%% <br> "
                  #print "% <br> "
                  #print linha
@@ -288,6 +285,7 @@ class Frase:
            palavras = ['N&atilde;o encontrado']
         else:
            palavras = []
+ 
            for x in linha:
                s0 = "".join(x)
                indice = len(s0)-1
@@ -301,8 +299,11 @@ class Frase:
                repetido = False
                if s not in palavras:
                   if s not in self.sujeito:
-                     if s not in self.agenteDaPassiva:
-                        palavras.append(s)
+                     #if s not in self.agenteDaPassiva:
+                     palavras.append(s)
+                     #   print "<br> separar agentedapassiva"
+                     #   print palavras
+                     #   print "<br>"
         return palavras
 
     # obter ambiguidade
@@ -423,7 +424,7 @@ class Frase:
            obterQtdeAgenteOD2Proprio      = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
 
         repetido = False
-        linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+        linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS")
         if linhaAgente[0] <> "N&atilde;o encontrado":
            self.agenteDaPassiva = self.separarPalavra(linhaAgente)
            self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
@@ -492,7 +493,7 @@ class Frase:
            else:
               repetido = True
         if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
-           obterQtdeAgenteAdverbio2   = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "P&amp;lt;")   
+           obterQtdeAgenteAdverbio2   = len(linhaAgente)   
 
         obterQtdePronomePessoal       = self.arvoreGerada.obterQtdeTermo("pers", fraseNumero, "pron")
         obterQtdePronomeDemonstrativo = self.arvoreGerada.obterQtdeTermo("det", fraseNumero, "pron")
@@ -617,14 +618,18 @@ class Frase:
           
     # obter o complemento verbal
     def obterAgenteDaPassiva(self, fraseNumero):
+        
         sujeitosEagentes = []
         linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PASS")
-        self.agenteDaPassiva = self.separarPalavra(linhaAgente)
-        self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
-        sujeitosEagentes.append(self.agenteDaPassiva)
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           sujeitosEagentes.append(self.agenteDaPassiva)
+
         if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
            repetido = False
            linhaAgente = self.arvoreGerada.obterTermo(":P&amp;lt;:prop", fraseNumero, "PASS")
+
            if linhaAgente[0] <> "N&atilde;o encontrado":
               self.agenteDaPassiva = self.separarPalavra(linhaAgente)
               self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
@@ -632,9 +637,21 @@ class Frase:
                  sujeitosEagentes.append(self.agenteDaPassiva)
               else:
                  repetido = True
+           if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+              repetido = False
+              linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+
+              if linhaAgente[0] <> "N&atilde;o encontrado":
+                 self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                 self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                 if self.agenteDaPassiva not in sujeitosEagentes:
+                    sujeitosEagentes.append(self.agenteDaPassiva)
+                 else:
+                    repetido = True
               if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
                  repetido = False
-                 linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+                 linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+
                  if linhaAgente[0] <> "N&atilde;o encontrado":
                     self.agenteDaPassiva = self.separarPalavra(linhaAgente)
                     self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
@@ -642,9 +659,20 @@ class Frase:
                        sujeitosEagentes.append(self.agenteDaPassiva)
                     else:
                        repetido = True
+                 if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                    repetido = False
+                    linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS")
+
+                    if linhaAgente[0] <> "N&atilde;o encontrado":
+                       self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                       self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                       if self.agenteDaPassiva not in sujeitosEagentes:
+                          sujeitosEagentes.append(self.agenteDaPassiva)
+                       else:
+                          repetido = True
                     if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
                        repetido = False
-                       linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+                       linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
                        if linhaAgente[0] <> "N&atilde;o encontrado":
                           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
                           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
@@ -652,9 +680,19 @@ class Frase:
                              sujeitosEagentes.append(self.agenteDaPassiva)
                           else:
                              repetido = True
+                       if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                          repetido = False
+                          linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
+                          if linhaAgente[0] <> "N&atilde;o encontrado":
+                             self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                             self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                             if self.agenteDaPassiva not in sujeitosEagentes:
+                                sujeitosEagentes.append(self.agenteDaPassiva)
+                             else:
+                                repetido = True
                           if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
                              repetido = False
-                             linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+                             linhaAgente = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
                              if linhaAgente[0] <> "N&atilde;o encontrado":
                                 self.agenteDaPassiva = self.separarPalavra(linhaAgente)
                                 self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
@@ -662,9 +700,19 @@ class Frase:
                                    sujeitosEagentes.append(self.agenteDaPassiva)
                                 else:
                                    repetido = True
+                             if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                                repetido = False
+                                linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
+                                if linhaAgente[0] <> "N&atilde;o encontrado":
+                                   self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                                   self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                                   if self.agenteDaPassiva not in sujeitosEagentes:
+                                      sujeitosEagentes.append(self.agenteDaPassiva)
+                                   else:
+                                      repetido = True
                                 if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
                                    repetido = False
-                                   linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+                                   linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
                                    if linhaAgente[0] <> "N&atilde;o encontrado":
                                       self.agenteDaPassiva = self.separarPalavra(linhaAgente)
                                       self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
@@ -672,59 +720,18 @@ class Frase:
                                          sujeitosEagentes.append(self.agenteDaPassiva)
                                       else:
                                          repetido = True
-                                      if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
-                                         repetido = False
-                                         linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
-                                         if linhaAgente[0] <> "N&atilde;o encontrado":
-                                            self.agenteDaPassiva = self.separarPalavra(linhaAgente)
-                                            self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
-                                            if self.agenteDaPassiva not in sujeitosEagentes:
-                                               sujeitosEagentes.append(self.agenteDaPassiva)
-                                            else:
-                                               repetido = True
-                                            if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
-                                               repetido = False
-                                               linhaAgente = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
-                                               if linhaAgente[0] <> "N&atilde;o encontrado":
-                                                  self.agenteDaPassiva = self.separarPalavra(linhaAgente)
-                                                  self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
-                                                  if self.agenteDaPassiva not in sujeitosEagentes:
-                                                     sujeitosEagentes.append(self.agenteDaPassiva)
-                                                  else:
-                                                     repetido = True
-                                                  if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
-                                                     repetido = False
-                                                     linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
-                                                     if linhaAgente[0] <> "N&atilde;o encontrado":
-                                                        self.agenteDaPassiva = self.separarPalavra(linhaAgente)
-                                                        self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
-                                                        if self.agenteDaPassiva not in sujeitosEagentes:
-                                                           sujeitosEagentes.append(self.agenteDaPassiva)
-                                                        else:
-                                                           repetido = True
-                                                        if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
-                                                           repetido = False
-                                                           linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
-                                                           if linhaAgente[0] <> "N&atilde;o encontrado":
-                                                              self.agenteDaPassiva = self.separarPalavra(linhaAgente)
-                                                              self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
-                                                              if self.agenteDaPassiva not in sujeitosEagentes:
-                                                                 sujeitosEagentes.append(self.agenteDaPassiva)
-                                                              else:
-                                                                 repetido = True
-                                                              if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
-                                                                 repetido = False
-                                                                 linhaAgente = self.arvoreGerada.obterTermo("P&amp;lt;", fraseNumero, ":PASS")
-                                                                 if linhaAgente[0] <> "N&atilde;o encontrado":
-                                                                    self.agenteDaPassiva = self.separarPalavra(linhaAgente)
-                                                                    self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
-                                                                    if self.agenteDaPassiva not in sujeitosEagentes:
-                                                                       sujeitosEagentes.append(self.agenteDaPassiva)
-                                                                    else:
-                                                                       repetido = True
-                                                                    if linhaAgente[0] == "N&atilde;o encontrado": 
-                                                                       self.agenteDaPassiva = "N&atilde;o encontrado"
-       
+                                   if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                                      repetido = False
+                                      linhaAgente = self.arvoreGerada.obterTermo("P&amp;lt;", fraseNumero, "PASS")
+                                      if linhaAgente[0] <> "N&atilde;o encontrado":
+                                         self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                                         self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                                         if self.agenteDaPassiva not in sujeitosEagentes:
+                                            sujeitosEagentes.append(self.agenteDaPassiva)
+                                         else:
+                                            repetido = True
+                                      if linhaAgente[0] == "N&atilde;o encontrado": 
+                                         self.agenteDaPassiva = "N&atilde;o encontrado"
         return self.agenteDaPassiva
 
     def validarNome(self, texto):
@@ -781,8 +788,8 @@ for counter in range(1,corpora.quantidadeFrases+1):
        print ("<p >"+sentencaAnalisada.conteudo+"</p>")
 print ("<br><p><strong>Resolução das Ambiguidades  - Escolhendo o antecedente</strong></p>")
 for counter in range(1,corpora.quantidadeFrases+1):
+    sentencaAnalisada = Frase(counter)
     if sentencaAnalisada.obterAmbiguidade(counter) == True:
-       sentencaAnalisada = Frase(counter)
        # mostrar resultados em tela
        existeVerboAuxiliar = "N&atilde;o encontrado"
        if sentencaAnalisada.obterVerboAuxiliar(counter) <> "N&atilde;o encontrado":
@@ -829,5 +836,5 @@ for counter in range(1,corpora.quantidadeFrases+1):
    
 rodape()
 print ("</body></html>")
-sentencaAnalisada.finalizarFrase()
+#sentencaAnalisada.finalizarFrase()
 
