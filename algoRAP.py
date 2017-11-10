@@ -1,4 +1,4 @@
-#!C:\python27\python.exe
+#!C:\Program Files (x86)\EasyPHP-Devserver-17\eds-binaries\python\default\python.exe
 # -*- coding: utf-8 -*-
 import sys
 import string
@@ -84,9 +84,9 @@ def rodape():
 class ArvoreSintatica:
     def __init__(self):
         try:
-#            with open('/Users/bruna/Downloads/exported.html', 'r') as self.arq:
+            with open('/Users/bruna/Downloads/exported.html', 'r') as self.arq:
 #            with open('/Users/jguedes/Downloads/exported.html', 'r') as self.arq:
-            with open('d:/Users/jose.guedes/Downloads/exported.html', 'r') as self.arq:
+#            with open('d:/Users/jose.guedes/Downloads/exported.html', 'r') as self.arq:
                self.texto = self.arq.readlines()
         except IOError:
             print ("<p style='margin-left: 80'><strong>Não encontrei o arquivo exported.html</strong></p>")
@@ -112,7 +112,7 @@ class ArvoreSintatica:
         # parametros:
         # tag: é o parametro que contém a parte do texto que queremos 
         #            tag no arquivo exported.html
-        resultado = "N&atilde;o encontrado" 
+        resultado = [] 
         encontrou = -1
         fraseSelecionada = 0
         linhaNivel = ' '
@@ -135,16 +135,40 @@ class ArvoreSintatica:
                  encontrouMesmoTipo = string.find(linhaNivelAnterior,tipo)
                  palavraReservada1  = string.find(linha,'pronome') 
                  if encontrouMesmoTipo <> -1 and palavraReservada1 == -1:
-                    resultado = linha  
+                    resultado.append(linha)
                  else:
-                    encontrouMesmoTipo = string.find(linha,tipo)
+                    encontrouMesmoTipo = string.find(linhaAnterior,tipo)
                     if encontrouMesmoTipo <> -1:
-                       resultado = linha  
+                       #if tag=="H:n" and tipo=="P&amp;lt;":
+                          #print "<br> *** entrou2 <br> "
+                       resultado.append(linha)
+                    else:
+                       encontrouMesmoTipo = string.find(linha,tipo)
+                       if encontrouMesmoTipo <> -1:
+                          resultado.append(linha)
               if nivel > nivelLinhaAnterior :
                  linhaNivelAnterior = linhaAnterior
                  nivelAnterior = nivelLinhaAnterior
+              #if tag=="H:n" and tipo=="PASS":
+                 #print "<br> %%% <br> "
+                 #print "% <br> "
+                 #print linha
+                 #print "% <br> "
+                 #print resultado
+                 #print "% <br> "
+                 #print nivel
+                 #print "% <br> "
+                 #print nivelLinhaAnterior
+                 #print "% <br> "
+                 #print linhaAnterior
+                 #print "% <br> "
+                 #print linhaNivelAnterior
+                 #print "<br> %%% <br> "
               nivelLinhaAnterior = nivel
               linhaAnterior = linha
+ 
+        if not resultado:
+           resultado=["N&atilde;o encontrado"]
         return resultado
           
     def obterQtdeTermo(self, tag, fraseNumero, tipo):
@@ -242,6 +266,8 @@ class Frase:
         self.arvoreGerada = ArvoreSintatica()          
         self.conteudo = self.arvoreGerada.obterFrase(fraseNumero)   # pegando a frase da árvore sintática
         self.ambiguidade = True  # colocar formula aqui
+        self.sujeito = []
+        self.agenteDaPassiva = []
         #self.ambiguidade = True   #criar logica para verificar se a frase tem ambiguidade
         #self.antecedente = ""   # soluçao
         #print fraseNumero
@@ -253,199 +279,377 @@ class Frase:
             print ("<p style='margin-left: 80'><strong>Não encontrei o arquivo Nomes_Proprios.txt</strong></p>")
             rodape()
             sys.exit(0)
+
+    def separarPalavra(self, linha):
+        if linha[0] == 'N&atilde;o encontrado':
+           palavras = ['N&atilde;o encontrado']
+        else:
+           palavras = []
+ 
+           for x in linha:
+               s0 = "".join(x)
+               indice = len(s0)-1
+               s = ''
+               while indice > 0:
+                  s = s + s0[indice]
+                  if s0[indice] == '\t':
+                     indice = 0
+                  indice = indice - 1
+               s = s[::-1]
+               repetido = False
+               if s not in palavras:
+                  #if s not in self.sujeito:
+                  #if s not in self.agenteDaPassiva:
+                  palavras.append(s)
+                  #   print "<br> separar agentedapassiva"
+                  #   print palavras
+                  #   print "<br>"
+        return palavras
+
     # obter ambiguidade
     def obterAmbiguidade(self, fraseNumero):
  
-        obterQtdeSujeitoProprio       = 0
-        obterQtdeSujeitoPredicado     = 0
-        obterQtdeSujeito2Proprio      = 0
-        obterQtdeSujeitoSubstantivo   = 0
-        obterQtdeComplODProprio       = 0
-        obterQtdeComplODSubstantivo   = 0
-        obterQtdeComplOD2Proprio      = 0
-        obterQtdeComplOD2Substantivo  = 0
-        obterQtdeComplOD3Proprio      = 0
-        obterQtdeComplOIProprio       = 0
-        obterQtdeComplOISubstantivo   = 0
-        obterQtdePronomePessoal       = 0
-        obterQtdePronomeDemonstrativo = 0
-        obterQtdeComplAdverbio        = 0
-        sujeitosEcomplementos = ' '
+        obterQtdeSujeitoProprio        = 0
+        obterQtdeSujeitoPredicado      = 0
+        obterQtdeSujeito2Proprio       = 0
+        obterQtdeSujeitoSubstantivo    = 0
+        obterQtdeComplODProprio        = 0 
+        obterQtdeComplODSubstantivo    = 0
+        obterQtdeComplOIProprio        = 0 
+        obterQtdeComplOI2Substantivo   = 0
+        obterQtdeComplOD3Proprio       = 0
+        obterQtdeComplementoOP         = 0
+        obterQtdeComplPred             = 0
+        obterQtdeComplOD4              = 0
+        obterQtdeComplOISubstantivo    = 0 
+        obterQtdeAgenteODProprio       = 0
+        obterQtdeAgenteODSubstantivo   = 0
+        obterQtdeAgentePredicado       = 0
+        obterQtdeAgenteOD2Proprio      = 0
+        obterQtdeAgenteOD2Substantivo  = 0
+        obterQtdeAgenteOD3Proprio      = 0
+        obterQtdeAgenteOIProprio       = 0
+        obterQtdeAgenteOISubstantivo   = 0
+        obterQtdePronomePessoal        = 0
+        obterQtdePronomeDemonstrativo  = 0
+        obterQtdeAgenteAdverbio        = 0
+        obterQtdeAgenteAdverbio2       = 0
+        sujeitosEagentesEcomplementos = []
   
+        repetido = False
         linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "SUBJ")
-        s = linhaSujeito.split("\t")
-        self.sujeito=s[len(s)-1]
-        sujeitosEcomplementos = self.sujeito
-        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True:
-           obterQtdeSujeitoProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "SUBJ")
+        if linhaSujeito[0] <> "N&atilde;o encontrado":
+           self.sujeito = self.separarPalavra(linhaSujeito)
+           self.sujeito = self.validarNome(self.sujeito)
+           if self.sujeito not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaSujeito[0] <> "N&atilde;o encontrado" and self.sujeito and repetido == False: 
+           obterQtdeSujeitoProprio       = len(self.sujeito)  
 
         repetido = False
         linhaSujeito = self.arvoreGerada.obterTermo("SUBJ:n(", fraseNumero, "SUBJ")
-        s = linhaSujeito.split("\t")
-        self.sujeito=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.sujeito) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.sujeito
-        else:
-           repetido = True
-        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True and repetido == False :
-           obterQtdeSujeito2Proprio      = 1  #self.arvoreGerada.obterQtdeTermo("SUBJ:n(", fraseNumero, "SUBJ")
+        if linhaSujeito[0] <> "N&atilde;o encontrado":
+           self.sujeito = self.separarPalavra(linhaSujeito)
+           self.sujeito = self.validarNome(self.sujeito)
+           if self.sujeito not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaSujeito[0] <> "N&atilde;o encontrado" and self.sujeito and repetido == False: # and self.validarNome(self.sujeito) == True and repetido == False :
+           obterQtdeSujeito2Proprio      = len(self.sujeito) 
 
         repetido = False
         linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
-        s = linhaSujeito.split("\t")
-        self.sujeito=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.sujeito) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.sujeito
-        else:
-           repetido = True
-        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True and repetido == False :
-           obterQtdeSujeitoSubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "SUBJ")
+        if linhaSujeito[0] <> "N&atilde;o encontrado":
+           self.sujeito = self.separarPalavra(linhaSujeito)
+           self.sujeito = self.validarNome(self.sujeito)
+           if self.sujeito not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaSujeito[0] <> "N&atilde;o encontrado" and self.sujeito and repetido == False: # and self.validarNome(self.sujeito) == True and repetido == False :
+           obterQtdeSujeitoSubstantivo   = len(self.sujeito)   #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "SUBJ")
+
+        # considerando que o predicado (P&amp) será fará parte do complemento verbal
+        #repetido = False
+        #linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
+        #s = linhaSujeito.split("\t")
+        #self.sujeito=s[len(s)-1]
+        #if string.find(sujeitosEagentesEcomplementos,self.sujeito) == -1:
+        #   sujeitosEagentesEcomplementos = sujeitosEagentesEcomplementos + self.sujeito
+        #else:
+        #   repetido = True
+        #if linhaSujeito <> "N&atilde;o encontrado" and self.validarNome(self.sujeito) == True and repetido == False :
+        #   obterQtdeSujeitoPredicado     = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "P&amp;lt;")
+        
+        repetido = False
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplODProprio       = len(self.complementoVerbal) 
+        
+        repetido = False
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplODSubstantivo    = len(self.complementoVerbal) 
+        
+        repetido = False
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplOIProprio         = len(self.complementoVerbal)
+        
+        repetido = False
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplOI2Substantivo    = len(self.complementoVerbal)
 
         repetido = False
-        linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
-        s = linhaSujeito.split("\t")
-        self.sujeito=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.sujeito) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.sujeito
-        else:
-           repetido = True
-        if linhaSujeito <> "N&atilde;o encontrado" and self.nomeValido(self.sujeito) == True and repetido == False :
-           obterQtdeSujeitoPredicado     = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "P&amp;lt;")
- 
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplOD3Proprio    = len(self.complementoVerbal) 
+        
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplODProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ACC")   # ACC + :prop       - OBJETO DIRETO
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplementoOP    = len(self.complementoVerbal)
+        
+        repetido = False
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo("PRED:n", fraseNumero, "ACC")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplPred    = len(self.complementoVerbal)
+        
+        repetido = False
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo("N&lt;:adj", fraseNumero, "ACC")
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           if self.complementoVerbal not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.sujeito)
+           else:
+              repetido = True
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado" and self.complementoVerbal and repetido == False: 
+           obterQtdeComplOD4      = len(self.complementoVerbal)
+        
+        repetido = False
+        linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado"  and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgentePredicado       = len(self.agenteDaPassiva)   #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ACC")   # ACC + :prop       - OBJETO DIRETO
 
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplODSubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ACC")   # ACC + H:n     - OBJETO DIRETO
+        linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.sujeito # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteODProprio       = len(self.agenteDaPassiva)  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "ACC")   # ACC + :prop       - OBJETO DIRETO
+
+        repetido = False
+        linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteODSubstantivo   = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "ACC")   # ACC + H:n     - OBJETO DIRETO
    
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplOD2Proprio      = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
+        linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteOD2Proprio      = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, ":pp")   # :pp + :prop       - OBJETO DIRETO
 
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplOD2Substantivo  = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PASS:pp")   # :pp + H:n     - OBJETO DIRETO
+        linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: #and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteOD2Substantivo  = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PASS:pp")   # :pp + H:n     - OBJETO DIRETO
 
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplOD3Proprio      = 1  #self.arvoreGerada.obterQtdeTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")   # :pp + :prop       - OBJETO DIRETO
+        linhaAgente = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteOD3Proprio      = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")   # :pp + :prop       - OBJETO DIRETO
 
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplOIProprio       = 1  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")  
+        linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: #and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteOIProprio       = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo(":prop", fraseNumero, "PIV")  
 
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplOISubstantivo   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PIV")   
+        linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteOISubstantivo   = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "PIV")   
 
         repetido = False
-        linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
-        if string.find(sujeitosEcomplementos,self.complementoVerbal) == -1:
-           sujeitosEcomplementos = sujeitosEcomplementos + self.complementoVerbal
-        else:
-           repetido = True
-        if linhaCompl <> "N&atilde;o encontrado" and self.nomeValido(self.complementoVerbal) == True and repetido == False :
-           obterQtdeComplAdverbio   = 1  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "P&amp;lt;")   
+        linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteAdverbio   = len(linhaAgente)  #self.arvoreGerada.obterQtdeTermo("H:n", fraseNumero, "P&amp;lt;")   
+
+        repetido = False
+        linhaAgente = self.arvoreGerada.obterTermo("P&amp;lt;", fraseNumero, "PASS")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+              sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+           else:
+              repetido = True
+        if linhaAgente[0] <> "N&atilde;o encontrado" and self.agenteDaPassiva and repetido == False: # and self.validarNome(self.agenteDaPassiva) == True and repetido == False :
+           obterQtdeAgenteAdverbio2   = len(linhaAgente)   
 
         obterQtdePronomePessoal       = self.arvoreGerada.obterQtdeTermo("pers", fraseNumero, "pron")
         obterQtdePronomeDemonstrativo = self.arvoreGerada.obterQtdeTermo("det", fraseNumero, "pron")
-        obterQtdeSujeito = obterQtdeComplAdverbio + obterQtdeComplOIProprio + obterQtdeComplOD3Proprio + obterQtdeSujeito2Proprio + obterQtdeSujeitoPredicado + obterQtdeComplOD2Proprio + obterQtdeComplOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeComplODProprio + obterQtdeComplODSubstantivo + obterQtdeComplOISubstantivo
+        obterQtdeSujeito = obterQtdeAgenteAdverbio2 + obterQtdeAgentePredicado + obterQtdeAgenteAdverbio + obterQtdeAgenteOIProprio + obterQtdeAgenteOD3Proprio + obterQtdeSujeito2Proprio + obterQtdeSujeitoPredicado + obterQtdeAgenteOD2Proprio + obterQtdeAgenteOD2Substantivo + obterQtdeSujeitoProprio + obterQtdeSujeitoSubstantivo + obterQtdeAgenteODProprio + obterQtdeAgenteODSubstantivo + obterQtdeAgenteOISubstantivo
         obterQtdePronome = obterQtdePronomePessoal + obterQtdePronomeDemonstrativo
-        print ("obterQtdeSujeitoPredicado")
-        print obterQtdeSujeitoPredicado
-        print "<br>"
-        print ("obterQtdeSujeitoProprio")
-        print obterQtdeSujeitoProprio
-        print "<br>"
-        print ("obterQtdeSujeito2Proprio")
-        print obterQtdeSujeito2Proprio
-        print "<br>"
-        print ("obterQtdeSujeitoSubstantivo")
-        print obterQtdeSujeitoSubstantivo
-        print "<br>"
-        print ("obterQtdeComplODProprio")
-        print obterQtdeComplODProprio
-        print "<br>"
-        print ("obterQtdeComplODSubstantivo")
-        print obterQtdeComplODSubstantivo
-        print "<br>"
-        print ("obterQtdeComplOD2Proprio")
-        print obterQtdeComplOD2Proprio
-        print "<br>"
-        print ("obterQtdeComplOD2Substantivo")
-        print obterQtdeComplOD2Substantivo
-        print "<br>"
-        print ("obterQtdeComplOD3Proprio")
-        print obterQtdeComplOD3Proprio
-        print "<br>"
-        print ("obterQtdeComplOIProprio")
-        print obterQtdeComplOIProprio
-        print "<br>"
-        print ("obterQtdeComplOISubstantivo")
-        print obterQtdeComplOISubstantivo
-        print "<br>"
-        print ("obterQtdeComplAdverbio")
-        print obterQtdeComplAdverbio
-        print "<br>"
-        print ("obterQtdeSujeito")
-        print obterQtdeSujeito
-        print "<br>"
-        print ("obterQtdePronome")
-        print obterQtdePronome
-        print "---------------------------------------------------------------------------------"
+        #print ("obterQtdeSujeitoPredicado")
+        #print obterQtdeSujeitoPredicado
+        #print "<br>"
+        #print ("obterQtdeSujeitoProprio")
+        #print obterQtdeSujeitoProprio
+        #print "<br>"
+        #print ("obterQtdeSujeito2Proprio")
+        #print obterQtdeSujeito2Proprio
+        #print "<br>"
+        #print ("obterQtdeSujeitoSubstantivo")
+        #print obterQtdeSujeitoSubstantivo
+        #print "<br>"
+        #print ("obterQtdeAgenteODProprio")
+        #print obterQtdeAgenteODProprio
+        #print "<br>"
+        #print ("obterQtdeAgenteODSubstantivo")
+        #print obterQtdeAgenteODSubstantivo
+        #print "<br>"
+        #print ("obterQtdeAgenteOD2Proprio")
+        #print obterQtdeAgenteOD2Proprio
+        #print "<br>"
+        #print ("obterQtdeAgenteOD2Substantivo")
+        #print obterQtdeAgenteOD2Substantivo
+        #print "<br>"
+        #print ("obterQtdeAgenteOD3Proprio")
+        #print obterQtdeAgenteOD3Proprio
+        #print "<br>"
+        #print ("obterQtdeAgenteOIProprio")
+        #print obterQtdeAgenteOIProprio
+        #print "<br>"
+        #print ("obterQtdeAgenteOISubstantivo")
+        #print obterQtdeAgenteOISubstantivo
+        #print "<br>"
+        #print ("obterQtdeAgenteAdverbio")
+        #print obterQtdeAgenteAdverbio
+        #print "<br>"
+        #print ("obterQtdeAgenteAdverbio2")
+        #print obterQtdeAgenteAdverbio2
+        #print "<br>"
+        #print ("obterQtdeSujeito")
+        #print obterQtdeSujeito
+        #print "<br>"
+        #print ("obterQtdePronome")
+        #print obterQtdePronome
+        #print sujeitosEagentesEcomplementos
+        #print "---------------------------------------------------------------------------------"
         if obterQtdeSujeito > 1 and obterQtdePronome > 0:
            self.ambiguidade = True
         else:
@@ -457,110 +661,316 @@ class Frase:
     def obterAntecedente(self, fraseNumero):
         # analisar    obterVerboAuxiliar = arvoreGerada.obterTermo("-VAUX:v*fin")
         #s = obterVerboAuxiliar.split("\t")
-        self.antecedente = " "
+        self.antecedente = []
         self.termoSelecionado = " "
-        if (self.verboAuxiliar=="N&atilde;o encontrado" or self.verboParticipio == "N&atilde;o encontrado") :
-           self.antecedente = self.obterComplementoVerbal(fraseNumero)
-           self.termoSelecionado = "Complemento Verbal"
-        else:
+        #alterei aqui
+        if (self.verboAuxiliar[0]=="N&atilde;o encontrado" or self.verboParticipio[0] == "N&atilde;o encontrado") :
            self.antecedente = self.obterSujeito(fraseNumero)
            self.termoSelecionado = "Sujeito"
+        else:
+           self.antecedente = self.obterAgenteDaPassiva(fraseNumero)
+           self.termoSelecionado = "Agente da passiva"
+
         return self.antecedente
           
     # obter o verbo auxiliar
     def obterVerboAuxiliar(self, fraseNumero):
         obterVerboAuxiliar = self.arvoreGerada.obterTermo("-VAUX:v*fin", fraseNumero,"-VAUX:v*fin")
-        s = obterVerboAuxiliar.split("\t")
-        self.verboAuxiliar=s[len(s)-1]
-        if obterVerboAuxiliar == "N&atilde;o encontrado":
+        self.verboAuxiliar = self.separarPalavra(obterVerboAuxiliar)
+        if obterVerboAuxiliar[0] == "N&atilde;o encontrado":
            obterVerboAuxiliar = self.arvoreGerada.obterTermo("-P:v*fin", fraseNumero, "-P:v*fin")
-           s = obterVerboAuxiliar.split("\t")
-           self.verboAuxiliar=s[len(s)-1]
+           self.verboAuxiliar = self.separarPalavra(obterVerboAuxiliar)
         return self.verboAuxiliar
         
     # obter o verbo no particípio
     def obterVerboParticipio(self, fraseNumero):
         obterVerboParticipio = self.arvoreGerada.obterTermo("-MV:v*pcp", fraseNumero, "-MV:v*pcp")
-        s = obterVerboParticipio.split("\t") 
-        self.verboParticipio=s[len(s)-1] 
+        self.verboParticipio = self.separarPalavra(obterVerboParticipio)
+        #self.verboParticipio = self.validarNome(self.verboParticipio)
         return self.verboParticipio
         
     # obter o sujeito
     def obterSujeito(self, fraseNumero):
+        sujeitosEagentesEcomplementos = []
         linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "SUBJ")
-        s = linhaSujeito.split("\t")
-        self.sujeito=s[len(s)-1]
-        if linhaSujeito == "N&atilde;o encontrado" or self.nomeValido(self.sujeito) == False:
+        if linhaSujeito[0] <> "N&atilde;o encontrado":
+           self.sujeito = self.separarPalavra(linhaSujeito)
+           self.sujeito = self.validarNome(self.sujeito)
+           sujeitosEagentesEcomplementos.append(self.sujeito)
+        if linhaSujeito[0] == "N&atilde;o encontrado" or not self.sujeito: # or repetido == False: 
+           repetido = False
            linhaSujeito = self.arvoreGerada.obterTermo("SUBJ:n(", fraseNumero, "SUBJ")
-           s = linhaSujeito.split("\t")
-           self.sujeito=s[len(s)-1]
-           if linhaSujeito == "N&atilde;o encontrado" or self.nomeValido(self.sujeito) == False:
+           if linhaSujeito[0] <> "N&atilde;o encontrado":
+              self.sujeito = self.separarPalavra(linhaSujeito)
+              self.sujeito = self.validarNome(self.sujeito)
+              if self.sujeito not in sujeitosEagentesEcomplementos:
+                 sujeitosEagentesEcomplementos.append(self.sujeito)
+              else:
+                 repetido = True
+           if linhaSujeito[0] == "N&atilde;o encontrado" or not self.sujeito: # or repetido == False: 
+              repetido = False
               linhaSujeito = self.arvoreGerada.obterTermo("H:n", fraseNumero, "SUBJ")
-              s = linhaSujeito.split("\t")
-              self.sujeito=s[len(s)-1]
-              if linhaSujeito == "N&atilde;o encontrado" or self.nomeValido(self.sujeito) == False:
-                 linhaSujeito = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
-                 s = linhaSujeito.split("\t")
-                 self.sujeito=s[len(s)-1]
-                 if self.nomeValido(self.sujeito) == False:
-                    self.sujeito = "N&atilde;o encontrado"
-
+              if linhaSujeito[0] <> "N&atilde;o encontrado":
+                 self.sujeito = self.separarPalavra(linhaSujeito)
+                 self.sujeito = self.validarNome(self.sujeito)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+              if linhaSujeito[0] == "N&atilde;o encontrado": 
+                 self.sujeito = "N&atilde;o encontrado"
         return self.sujeito
-          
+
     # obter o complemento verbal
+    
     def obterComplementoVerbal(self, fraseNumero):
-        linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
-        s = linhaCompl.split("\t")
-        self.complementoVerbal=s[len(s)-1]
+        
+        sujeitosEagentesEcomplementos = []
+        linhaComplementoVerbal = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
         #if self.nomeValido(self.complementoVerbal) == False:
         #to do :  
         #1) colocar todos os ifs iguais a esse da linha abaixo
         #2) montar rotina para ler um arquivo texto com todas as palavras que podem representar nome proprio
         #3) procurar um texto adequado para realizar testes
 
-        if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-           linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "ACC")
-           s = linhaCompl.split("\t")
-           self.complementoVerbal=s[len(s)-1]
-           if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-              linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
-              s = linhaCompl.split("\t")
-              self.complementoVerbal=s[len(s)-1]
-              if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                 linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
-                 s = linhaCompl.split("\t")
-                 self.complementoVerbal=s[len(s)-1]
-                 if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                    linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
-                    s = linhaCompl.split("\t")
-                    self.complementoVerbal=s[len(s)-1]
-                    if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                       linhaCompl = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
-                       s = linhaCompl.split("\t")
-                       self.complementoVerbal=s[len(s)-1]
-                       if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                          linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
-                          s = linhaCompl.split("\t")
-                          self.complementoVerbal=s[len(s)-1]
-                          if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                             linhaCompl = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
-                             s = linhaCompl.split("\t")
-                             self.complementoVerbal=s[len(s)-1]
-                             if linhaCompl == "N&atilde;o encontrado" or self.nomeValido(self.complementoVerbal) == False:
-                                linhaCompl = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
-                                s = linhaCompl.split("\t")
-                                self.complementoVerbal=s[len(s)-1]
-                                if self.nomeValido(self.complementoVerbal) == False:
-                                   self.complementoVerbal = "N&atilde;o encontrado"
+        if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+           self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+           self.complementoVerbal = self.validarNome(self.complementoVerbal)
+           sujeitosEagentesEcomplementos.append(self.complementoVerbal)
+        if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+           repetido = False
+           linhaComplementoVerbal = self.arvoreGerada.obterTermo("ACC:n(", fraseNumero, "ACC")
+           if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+              self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+              self.complementoVerbal = self.validarNome(self.complementoVerbal)
+              if self.sujeito not in sujeitosEagentesEcomplementos:
+                 sujeitosEagentesEcomplementos.append(self.sujeito)
+              else:
+                 repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo(":H:n", fraseNumero, "PIV")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo("PRED:n", fraseNumero, "ACC")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo("N&lt;:adj", fraseNumero, "ACC")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+           if linhaComplementoVerbal[0] == "N&atilde;o encontrado" or not self.complementoVerbal: # or repetido == False: 
+              repetido = False
+              linhaComplementoVerbal = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS:pp")
+              if linhaComplementoVerbal[0] <> "N&atilde;o encontrado":
+                 self.complementoVerbal = self.separarPalavra(linhaComplementoVerbal)
+                 self.complementoVerbal = self.validarNome(self.complementoVerbal)
+                 if self.sujeito not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.sujeito)
+                 else:
+                    repetido = True
+              if linhaComplementoVerbal[0] == "N&atilde;o encontrado": 
+                 self.complementoVerbal = "N&atilde;o encontrado"
         return self.complementoVerbal
 
-    def nomeValido(self, texto):
-        resultado = True
-        if texto.lower() == texto:
-           resultado = False
-        if sentencaAnalisada.nomesProprios(texto) == True:
-           resultado = True
-        return resultado
+
+    def obterAgenteDaPassiva(self, fraseNumero):
+        
+        sujeitosEagentesEcomplementos = []
+        linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PASS")
+        if linhaAgente[0] <> "N&atilde;o encontrado":
+           self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+           self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+           sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+
+        if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+           repetido = False
+           linhaAgente = self.arvoreGerada.obterTermo(":P&amp;lt;:prop", fraseNumero, "PASS")
+
+           if linhaAgente[0] <> "N&atilde;o encontrado":
+              self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+              self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+              if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                 sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+              else:
+                 repetido = True
+           if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+              repetido = False
+              linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "ACC")
+
+              if linhaAgente[0] <> "N&atilde;o encontrado":
+                 self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                 self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                 if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                    sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                 else:
+                    repetido = True
+              if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                 repetido = False
+                 linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, ":pp")
+
+                 if linhaAgente[0] <> "N&atilde;o encontrado":
+                    self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                    self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                    if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                       sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                    else:
+                       repetido = True
+                 if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                    repetido = False
+                    linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PASS")
+
+                    if linhaAgente[0] <> "N&atilde;o encontrado":
+                       self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                       self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                       if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                          sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                       else:
+                          repetido = True
+                    if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                       repetido = False
+                       linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "PIV")
+                       if linhaAgente[0] <> "N&atilde;o encontrado":
+                          self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                          self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                          if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                             sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                          else:
+                             repetido = True
+                       if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                          repetido = False
+                          linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "PIV")
+                          if linhaAgente[0] <> "N&atilde;o encontrado":
+                             self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                             self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                             if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                                sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                             else:
+                                repetido = True
+                          if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                             repetido = False
+                             linhaAgente = self.arvoreGerada.obterTermo("N&amp;lt;:prop", fraseNumero, "N&amp;lt;:prop")
+                             if linhaAgente[0] <> "N&atilde;o encontrado":
+                                self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                                self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                                if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                                   sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                                else:
+                                   repetido = True
+                             if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                                repetido = False
+                                linhaAgente = self.arvoreGerada.obterTermo("H:n", fraseNumero, "P&amp;lt;")
+                                if linhaAgente[0] <> "N&atilde;o encontrado":
+                                   self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                                   self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                                   if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                                      sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                                   else:
+                                      repetido = True
+                                if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                                   repetido = False
+                                   linhaAgente = self.arvoreGerada.obterTermo(":prop", fraseNumero, "P&amp;lt;")
+                                   if linhaAgente[0] <> "N&atilde;o encontrado":
+                                      self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                                      self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                                      if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                                         sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                                      else:
+                                         repetido = True
+                                   if linhaAgente[0] == "N&atilde;o encontrado" or not self.agenteDaPassiva: # and repetido == False: 
+                                      repetido = False
+                                      linhaAgente = self.arvoreGerada.obterTermo("P&amp;lt;", fraseNumero, "PASS")
+                                      if linhaAgente[0] <> "N&atilde;o encontrado":
+                                         self.agenteDaPassiva = self.separarPalavra(linhaAgente)
+                                         self.agenteDaPassiva = self.validarNome(self.agenteDaPassiva)
+                                         if self.agenteDaPassiva not in sujeitosEagentesEcomplementos:
+                                            sujeitosEagentesEcomplementos.append(self.agenteDaPassiva)
+                                         else:
+                                            repetido = True
+                                      if linhaAgente[0] == "N&atilde;o encontrado": 
+                                         self.agenteDaPassiva = "N&atilde;o encontrado"
+        return self.agenteDaPassiva
+
+    def validarNome(self, texto):
+        novaLista = []
+        for x in texto:
+            s0 = "".join(x)
+            indice = len(s0)-1
+            s = ''
+            while indice > 0:
+               s = s + s0[indice]
+               if s0[indice] == '\t':
+                  indice = 0
+               indice = indice - 1
+            s = s[::-1]
+            resultado = True
+            if s.lower() == s:
+               resultado = False
+            if sentencaAnalisada.nomesProprios(s) == True:
+               resultado = True
+            if resultado == True:
+               novaLista.append(x)
+               #del self.sujeito[texto.index(x)] #texto.remove(x)
+               #self.sujeito.remove(x)
+        return novaLista
         
     def nomesProprios(self, nome):
         retorno = False
@@ -588,42 +998,61 @@ for counter in range(1,corpora.quantidadeFrases+1):
     sentencaAnalisada = Frase(counter)
     #print sentencaAnalisada.obterAmbiguidade(counter)
     if sentencaAnalisada.obterAmbiguidade(counter) == True:
-       print ("<br><p style='background-color: #ff0000; color: #fff'>"+sentencaAnalisada.conteudo+"</p>")
+       print ("<p style='background-color: #ff0000; color: #fff'>"+sentencaAnalisada.conteudo+"</p>")
     else:
-       print ("<br><p >"+sentencaAnalisada.conteudo+"</p>")
+       print ("<p >"+sentencaAnalisada.conteudo+"</p>")
+print ("<br><p><strong>Resolução das Ambiguidades  - Escolhendo o antecedente</strong></p>")
 for counter in range(1,corpora.quantidadeFrases+1):
+    sentencaAnalisada = Frase(counter)
     if sentencaAnalisada.obterAmbiguidade(counter) == True:
-       sentencaAnalisada = Frase(counter)
        # mostrar resultados em tela
        existeVerboAuxiliar = "N&atilde;o encontrado"
        if sentencaAnalisada.obterVerboAuxiliar(counter) <> "N&atilde;o encontrado":
           existeVerboAuxiliar = "Encontrado"
+
        existeVerboParticipio = "N&atilde;o encontrado"
        if sentencaAnalisada.obterVerboParticipio(counter) <> "N&atilde;o encontrado":
           existeVerboParticipio = "Encontrado"
        print ("<br><p style='margin-left: 80'><strong> Frase em An&aacute;lise: "+sentencaAnalisada.conteudo+"</strong></p>")
+
        sentencaAnalisada.obterAntecedente(counter)
+
        print ("<p style='margin-left: 80'>Verbo Auxiliar: "+str(existeVerboAuxiliar))   
-       if existeVerboAuxiliar=="Encontrado":
-          print (" => "+sentencaAnalisada.verboAuxiliar+"</p>")
-       print ("<p style='margin-left: 80'>Verbo no Partic&iacute;pio: "+str(existeVerboParticipio))
-       if existeVerboParticipio=="Encontrado":
-          print (" => "+sentencaAnalisada.verboParticipio+"</p>")
+       if sentencaAnalisada.verboAuxiliar:  #existeVerboAuxiliar=="Encontrado":
+          print (" => "+sentencaAnalisada.verboAuxiliar[0]+"</p>")
+
+       if sentencaAnalisada.verboParticipio[0] <> "N&atilde;o encontrado":  #existeVerboParticipio=="Encontrado":
+          print ("<p style='margin-left: 80'>Verbo no Partic&iacute;pio: "+str(existeVerboParticipio))
+          print (" => "+sentencaAnalisada.verboParticipio[0]+"</p>")
+
        if sentencaAnalisada.termoSelecionado == "Sujeito" :
           sentencaAnalisada.obterSujeito(counter)
-          #print ("<br> Linha onde o Sujeito foi localizado: "+linhaSujeito+" <br>")
-          print ("<p style='margin-left: 80'>Sujeito localizado: "+sentencaAnalisada.sujeito+"</p>")
-       else:
           sentencaAnalisada.obterComplementoVerbal(counter)
-          print ("<p style='margin-left: 80'>Complemento Verbal localizado: "+sentencaAnalisada.complementoVerbal+"</p>")
+          #print ("<br> Linha onde o Sujeito foi localizado: "+linhaSujeito+" <br>")
+          if sentencaAnalisada.sujeito:  #existeVerboAuxiliar=="Encontrado":
+           if sentencaAnalisada.complementoVerbal:  #existeVerboAuxiliar=="Encontrado":
+             print ("<p style='margin-left: 80'>Sujeito localizado: "+sentencaAnalisada.sujeito[0]+"</p>")
+             print ("<p style='margin-left: 80'>Complemento Verbal (Substantivo próprio) localizado: "+sentencaAnalisada.complementoVerbal[0]+"</p>")
+          #else:
+             #print ("<p style='margin-left: 80'>Sujeito não localizado </p>")
+       else:
+          sentencaAnalisada.obterAgenteDaPassiva(counter)
+          if sentencaAnalisada.agenteDaPassiva:  #existeVerboAuxiliar=="Encontrado":
+             print ("<p style='margin-left: 80'>Agente da Passiva localizado: "+sentencaAnalisada.agenteDaPassiva[0]+"</p>")
+          #else:
+             #print ("<p style='margin-left: 80'>Agente da Passiva não localizado </p>")
+
        if sentencaAnalisada.antecedente == "N&atilde;o encontrado":
           print ("<p style='margin-left: 80'><strong> Entendo que a solu&ccedil;&atilde;o seria o " +sentencaAnalisada.termoSelecionado+ ", mas não fui capaz de identificá-lo para resolver a ambiguidade <br></strong></p>")
        else:
-          print ("<p style='margin-left: 80'><strong> Escolhi como solu&ccedil;&atilde;o para o antecedente o " +sentencaAnalisada.termoSelecionado+ " => "+sentencaAnalisada.antecedente+" <br></strong></p>")
+          print ("<p style='margin-left: 80'><strong> Escolhi como solu&ccedil;&atilde;o para o antecedente o " +sentencaAnalisada.termoSelecionado+ " => ")
+          if sentencaAnalisada.antecedente:
+             print (sentencaAnalisada.antecedente[0])
+          print (" <br></strong></p>")
     #else:
-    #   print "<br> Frase não possui ambiguidade anaforica pronominal <br>"
+       #print "<br> Frase não possui ambiguidade anaforica pronominal <br>"
    
 rodape()
 print ("</body></html>")
-sentencaAnalisada.finalizarFrase()
+#sentencaAnalisada.finalizarFrase()
 
