@@ -41,54 +41,14 @@
 										<h1>Ferramentas Testadas</h1>
 									</header>
 
-									<p align="justify">EM DESENVOLVIMENTO      O presente trabalho de conclusão de curso visa desenvolver um algoritmo para solucionar o problema da correferência em aplicações no âmbito do processamento da linguagem natural, que é uma subárea da Inteligência Artificial, na qual é estudada a capacidade dos programas em interpretar a linguagem natural humana.
-Para uma máquina analisar a linguagem humana, é necessário que os algoritmos consigam interpretar a morfologia, sintaxe, semântica e pragmática dos textos. Assim, este trabalho está diretamente relacionado com a análise pragmática, mais especificamente com a ambiguidade anafórica dentro de uma relação de correferência, em que são analisadas as relações entre palavras de diversas sentenças, dentro de um contexto. 
-Quando uma entidade é mencionada mais de uma vez em um texto, poderá ser utilizado um termo anafórico para referenciá-la, podendo ser usado, por exemplo, um pronome (ele, ela, isso) ou um artigo definido (o, a, as). A relação entre a entidade que é dita como antecedente e o termo anafórico é chamada de relação de correferência. Existem casos em que podem haver mais de uma interpretação em relação de qual antecedente está sendo referenciado pelo termo anafórico, provocando a ambiguidade. O algoritmo desenvolvido deverá interpretar os termos anafóricos, considerando o contexto das frases, para conseguir compreender o que está sendo dito.
-Para tanto, buscaremos analisar trabalhos anteriores similares ao tema, com o objetivo de conhecer o estado da arte. O resultado que esperamos obter será o de mostrar o uso da solução através de exemplos práticos. A partir desta etapa, será possível escrever a conclusão e pensar em trabalhos futuros. 
-</p>
-
+									<div style="text-indent: 30px;">Foram pesquisadas ferramentas que implementam as análises morfológicas e sintáticas para serem usadas em conjunto com o algoritmo que será​ ​criado. </div>
+									<div style="text-indent: 30px;">O Python NLTK foi a primeira a ser estudada. O autor disponibiliza um livro detalhando o uso para processamento da linguagem natural e contém uma biblioteca de código aberto chamada ​Natural Language Toolkit (NLTK), na linguagem Python. Os tutoriais deste livro incluem demonstrações de como utilizar a biblioteca para descrever e analisar a linguagem, como analisar as sentenças e obter as árvores sintáticas, como marcar automaticamente as palavras de acordo com sua classe gramatical, que são chamadas de etiquetagem gramatical, e como são utilizados as estruturas e os algoritmos nesse campo, entre outras funções. O NLTK disponibiliza documentação, software e dados gratuitos, incluindo algoritmos​ ​para​ ​a​ ​análise​ ​morfológica​ ​e​ ​sintática​ ​de​ ​sentenças. 
+									<div style="text-indent: 30px;">O Lx-Center foi outra ferramenta pesquisada que disponibiliza serviços e ferramentas online, voltadas para o processamento da linguagem natural, contendo interfaces para conjugar verbos, separar sílabas, análises morfológica e sintaxe de textos. Desenvolvida pelo grupo de pesquisa na universidade de Lisboa que realiza pesquisas no campo da inteligência artificial, com foco na linguagem​ ​natural. As ferramentas estão disponíveis no site, como no exemplo do item Pos-Tagger, apresentado nas figuras 7 e 8, onde é feita a etiquetagem gramatical, as palavras da frase ou texto escrita pelo usuário serão separadas e classificadas gramaticalmente​.</div>
+									<div style="text-indent: 30px;">A terceira ferramenta foi a A Ferramenta TreeTagger realiza a etiquetagem morfológica, separa as palavras do texto e as classificam morfologicamente. A frase é escrita em um arquivo texto e através do comando escrito no prompt a etiquetagem é feita e mostrada em um arquivo de​ ​saída.</div> 
+									<div style="text-indent: 30px;">O VISL (​Visual Interactive Syntax Learning​) foi a ferramenta escolhida para a pesquisa. Trata-se de um projeto de pesquisa feito na universidade do sul da Dinamarca. O VISL possui ferramentas gramaticais online, analisadores morfológicos,​ ​sintáticos,​ ​tradução​ ​automática.  O projeto começou em 1996, com o objetivo de contribuição de estudo de análises gramáticas na internet, e o desenvolvimento de ferramentas interativas. Em 3 anos o projeto cresceu, sendo disponibilizado para sete idiomas, foram construídos bancos de árvores para esses idiomas, criados e revisados automaticamente.</div>
 									<hr class="major" />
 
-									<h2>Objetivos</h2>
-									<p>1.2.1 Objetivo geral:<br><br>
-Desenvolver algoritmo para solução da ambiguidade anafórica pronominal em relações de correferência, voltado para a língua portuguesa, em aplicações de processamento de linguagem natural
 
-<br><br>
-1.2.2 Objetivos específicos:<br><br>
-
-(i) Buscar um framework que permita implementar uma solução para a ambiguidade anafórica pronominal em relações de correferência ou uma estrutura que permita testar o algoritmo implementado.<br>
-<br>(ii) Implementar um algoritmo de solução do problema de correferência<br>
-<br>(iii) Para a implementação utilizaremos frameworks já disponíveis na Internet e que já possuem programados módulos de morfologia e sintaxe. Implementaremos o algoritmo como um ponto extensível (hotspot) para a resolução do problema anafórico.<br>
-<br>(iv) Conectar o algoritmo implementado no framework/sistema.<br>
-<br>(v) Testar o framework/sistema com e sem o algoritmo de solução do problema de correferência, com o objetivo de comparar os resultados e saber a eficiência do algoritmo.<br>
-</p>
-
-									<hr class="major" />
-
-									<h2>Justificativa</h2>
-									<p align="justify">Em aplicações de processamento de linguagem natural que buscam simular o comportamento humano, o computador deve ser capaz de interpretar perguntas feitas por usuários, no entanto esta tarefa nem sempre é simples. A análise pragmática é uma das etapas da linguística necessária para a compreensão da pergunta, pois é responsável pela análise do significado das palavras da sentença, dentro de um contexto e a relevância deste trabalho está em transpor a lógica pragmática ao algoritmo que queremos desenvolver. 
-
-Dentre os diversos problemas relacionados à análise pragmática, um dos principais é o problema da resolução de anáforas, em que o computador precisa identificar corretamente a quem o termo anafórico está se referindo, e é por esse motivo que focaremos nossa pesquisa nesse campo. 
-	Existem casos em que ocorrem a ambiguidade anafórica, assim é necessária a interpretação de qual antecedente está sendo referido pelo termo anafórico, para uma melhor compreensão do sentido da frase, sendo solucionada pela relação de correferência entre essas duas expressões.
-	Assim, esta monografia justifica-se ao tentar solucionar tais ambiguidades anafóricas dentro de aplicações de processamento de linguagem natural.
-Minha abordagem tem como objetivo reproduzir a mesma lógica utilizada pelas pessoas quando, em uma conversa, conseguem resolver as ambiguidades. No caso de ambiguidades anafóricas com pronomes nulos, o antecedente será o sujeito da sentença. 	Os casos em que ocorrem ambiguidades com pronomes plenos são mais complexos, será analisada a possibilidade de se utilizar o objeto da frase, o complemento verbal ou nos casos sem solução, se existirem, a aplicação terá que obter mais informações para definir o antecedente.
-</p>
-
-									<hr class="major" />
-
-									<h2>Processamento da Linguagem Natural</h2>
-									<p align="justify">O processamento da linguagem natural estuda e desenvolve aplicações que reconhecem a linguagem humana, através do estudo da fonologia e análises linguísticas. A recuperação de informação, reconhecimento de fala, tradução automática e sistemas de perguntas e respostas são aplicações desta área.
-Para o desenvolvimento deste trabalho está sendo analisado o funcionamento de sistemas de perguntas e respostas. Tais sistemas têm como finalidade reproduzir o comportamento humano, na interpretação de uma pergunta, permitindo formar uma resposta através do seu conhecimento, construído a partir de documentos e texto locais ou pesquisando em outras fontes externas. Um exemplo de uso desse sistema seria, por exemplo, para auxiliar a aprendizagem de estudantes, desenvolvendo tutores virtuais para interagir com o aluno. (SAIAS, 2010) 
-De uma maneira geral, os sistemas de processamento da linguagem natural funcionam através das seguintes etapas: (i) análise da pergunta; (ii) consulta de fontes de respostas; (iii) extração de respostas e (iv) filtragem dos resultados, descritas a seguir:
-
-(i)	A análise da pergunta inclui a morfologia, sintaxe, semântica e pragmática. Primeiro é verificada a morfologia, em que é analisada a estrutura das palavras e a definição de suas categorias, se é um substantivo, verbo, adjetivo, preposição ou advérbio. Na sequência, é realizada a análise sintática, em que é estudada a estrutura da frase e a função das palavras na mesma, identificando, por exemplo, o sujeito e predicado. Na análise semântica, é identificado o significado das palavras e o sentido que ela representa nas frases, e por último, na análise pragmática, é feita a interpretação da mensagem, analisando-se a relação das frases de acordo com o contexto. Após as análises linguísticas, o sistema obtém uma estrutura da pergunta que pode ser processada computacionalmente. Algumas abordagens adicionam a esta estrutura uma ontologia com o objetivo de classificar a pergunta para identificar o tipo da resposta, se será um valor numérico, data ou definição. (VIEIRA, 2011)
-
-(ii)	O sistema poderá buscar as respostas em documentos locais, como uma coleção de textos no próprio computador ou poderá consultar também conteúdo da internet, usando um motor de pesquisa como o Google ou dicionários online.(SAIAS, 2010) 
-
-(iii)	Na etapa de extração das respostas, os sistemas utilizam abordagens que permitem selecionar um grupo de possíveis respostas. Um exemplo de abordagem seria considerar os advérbios e pronomes interrogativos o foco da pergunta como o sujeito e a ação do verbo, se houver.(SAIAS, 2010) 
-
-(iv)	Na etapa final, será filtrada a melhor resposta. Para essa escolha, o sistema vai considerar a maior pontuação dentre as respostas selecionadas.(SAIAS, 2010) 
-</p>
 
 								</section>
 
